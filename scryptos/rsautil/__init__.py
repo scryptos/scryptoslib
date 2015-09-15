@@ -1,115 +1,9 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from itertools import product
+from scryptos.math import arithmetic, contfrac
 import random
 
-###############################################################################
-#                             Helper Functions                                #
-###############################################################################
-def force_zip(a,b):
-  return zip(a + [None] * (max(len(b) - len(a), 0)), b + [None] * (max(len(a) - len(b)), 0))
-def gcd(x,y):
-  while y: x,y = y,(x%y)
-  return x
-def egcd(a, b):
-    if a == 0:
-      return (b, 0, 1)
-    else:
-      g, y, x = egcd(b % a, a)
-      return (g, x - (b // a) * y, y)
-def modinv(a, m):
-    g, x, y = egcd(a, m)
-    if g != 1:
-      raise Exception('modular inverse does not exist')
-    else:
-      return x % m
-def chinese_remainder_theorem(items):
-  N = reduce(lambda x,y:int(x)*y, [x[1] for x in items])
-  result = 0
-  for a, n in items:
-    m = N/n
-    d, r, s = egcd(n, m)
-    if d != 1:
-      raise Exception("Input not pairwise co-prime")
-    result += a*s*m
-  return result % N
-def lcm(x,y):
-  return (x*y)/gcd(x,y)
-def totient(*args):
-  return reduce(lambda x,y: x*(y-1), map(int, args))
-def bitlength(x):
-    assert x >= 0
-    n = 0
-    while x > 0:
-        n = n+1
-        x = x>>1
-    return n
-def nth_root(x,n):
-    high = 1
-    while high ** n < x:
-        high *= 2
-    low = high/2
-    while low < high:
-        mid = (low + high) // 2
-        if low < mid and mid**n < x:
-            low = mid
-        elif high > mid and mid**n > x:
-            high = mid
-        else:
-            return mid
-    return mid + 1
-def isqrt(n):
-    if n < 0: raise ValueError('square root not defined for negative numbers')
-    if n == 0: return 0
-    a, b = divmod(bitlength(n), 2)
-    x = 2**(a+b)
-    while True:
-        y = (x + n//x)//2
-        if y >= x:
-            return x
-        x = y
-def is_perfect_square(n):
-    h = n & 0xF
-    if h > 9: return -1
-    if not(h == 2 or h == 3 or h == 5 or h == 6 or h == 7 or h == 8):
-        t = isqrt(n)
-        if t*t == n:
-            return t
-        else:
-            return -1
-    return -1
-def rational_to_contfrac (x, y):
-    a = x//y
-    if a * y == x:
-        return [a]
-    else:
-        pquotients = rational_to_contfrac(y, x - a * y)
-        pquotients.insert(0, a)
-        return pquotients
-def convergents_from_contfrac(frac):    
-    convs = [];
-    for i in range(len(frac)):
-        convs.append(contfrac_to_rational(frac[0:i]))
-    return convs
-def contfrac_to_rational (frac):
-    if len(frac) == 0:
-        return (0,1)
-    elif len(frac) == 1:
-        return (frac[0], 1)
-    else:
-        remainder = frac[1:len(frac)]
-        (num, denom) = contfrac_to_rational(remainder)
-        return (frac[0] * num + denom, num)
-def gen_d(e, p, q):
-  l = lcm(p-1, q-1)
-  d = egcd(e, l)[1]
-  if d < 0:
-    d += l
-  return d
-def decrypt_pkcs1_oaep(ciphertext, rsa):
-  key = PKCS1_OAEP.new(RSA.construct((rsa.n, rsa.e, rsa.d, rsa.p, rsa.q)))
-  plaintext = key.decrypt(ciphertext.decode("base64"))
-  return plaintext
 
 class RSA:
   def __init__(s, e, n, **kwargs):
@@ -152,6 +46,31 @@ class RSA:
     elif hasattr(s, "d"):
       d = RSA.construct((s.n, s.e, s.d))
     return d.exportKey()
+
+###############################################################################
+#                             Helper Functions                                #
+###############################################################################
+def force_zip(a,b):
+  return zip(a + [None] * (max(len(b) - len(a), 0)), b + [None] * (max(len(a) - len(b)), 0))
+def bitlength(x):
+    assert x >= 0
+    n = 0
+    while x > 0:
+        n = n+1
+        x = x>>1
+    return n
+def totient(*args):
+  return reduce(lambda x,y: x*(y-1), map(int, args))
+def gen_d(e, p, q):
+  l = lcm(p-1, q-1)
+  d = egcd(e, l)[1]
+  if d < 0:
+    d += l
+  return d
+def decrypt_pkcs1_oaep(ciphertext, rsa):
+  key = PKCS1_OAEP.new(RSA.construct((rsa.n, rsa.e, rsa.d, rsa.p, rsa.q)))
+  plaintext = key.decrypt(ciphertext.decode("base64"))
+  return plaintext
 
 ###############################################################################
 #                              Core Functions                                 #
@@ -215,7 +134,7 @@ def decrypt_rsa(dataset, cipherset = []):
     print "[*] Unknown"
 
 ###############################################################################
-#                              Sub Functions                                  #
+#                            Attack Functions                                 #
 ###############################################################################
 def common_modulus(dataset, cipherset):
   for r,s in product(zip(dataset, cipherset), repeat=2):
@@ -233,6 +152,20 @@ def common_modulus(dataset, cipherset):
       else:
         return pow(r[1], a, n) * pow(s[1], b, n) % n
   raise ValueError("Invalid Dataset")
+def common_private_exponent(dataset):
+  # Referenced : http://ijcsi.org/papers/IJCSI-9-2-1-311-314.pdf
+  from scryptos.wrapper import fplll
+  eset = map(lambda x:x.e, dataset)
+  nset = map(lambda x:x.n, dataset)
+  r = len(eset)
+  M = isqrt(nset[r - 1])
+  B = []
+  B.append([M] + eset)
+  for x in xrange(r):
+    B.append([0]*(x+1) + [-nset[x]] + [0]*(r-x-1))
+  S = fplll.svp(B) # fplll.lll(B)[0]
+  d = abs(S[0])/M
+  return d
 def hastad_broadcast(dataset, cipherset):
   e = dataset[0].e
   if e == len(dataset) and all([e == x.e for x in dataset]):
@@ -267,25 +200,13 @@ def franklin_raiter(dataset, a, b, cipherset):
 
   g1 = Poly(x**dataset[0].e - cipherset[0], domain=F)
   g2 = Poly(((a*x+b))**dataset[1].e - cipherset[1], domain=F)
-  g = g1.gcd(g2).monic()
+  while any(map(lambda x: x != 0, g2.coeffs())):
+    g1, g2 = g2, g1 % g2
+  g = g.monic()
   print "[+] g = %s" % repr(g)
 
   m = -g.all_coeffs()[-1]
   return m
-def common_private_exponent(dataset):
-  # Referenced : http://ijcsi.org/papers/IJCSI-9-2-1-311-314.pdf
-  from scryptos.wrapper import fplll
-  eset = map(lambda x:x.e, dataset)
-  nset = map(lambda x:x.n, dataset)
-  r = len(eset)
-  M = isqrt(nset[r - 1])
-  B = []
-  B.append([M] + eset)
-  for x in xrange(r):
-    B.append([0]*(x+1) + [-nset[x]] + [0]*(r-x-1))
-  S = fplll.svp(B) # fplll.lll(B)[0]
-  d = abs(S[0])/M
-  return d
 
 ###############################################################################
 #                        Factorization Functions                              #

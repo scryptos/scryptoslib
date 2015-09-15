@@ -272,6 +272,20 @@ def franklin_raiter(dataset, a, b, cipherset):
 
   m = -g.all_coeffs()[-1]
   return m
+def common_private_exponent(dataset):
+  # Referenced : http://ijcsi.org/papers/IJCSI-9-2-1-311-314.pdf
+  from scryptos.wrapper import fplll
+  eset = map(lambda x:x.e, dataset)
+  nset = map(lambda x:x.n, dataset)
+  r = len(eset)
+  M = isqrt(nset[r - 1])
+  B = []
+  B.append([M] + eset)
+  for x in xrange(r):
+    B.append([0]*(x+1) + [-nset[x]] + [0]*(r-x-1))
+  S = fplll.svp(B) # fplll.lll(B)[0]
+  d = abs(S[0])/M
+  return d
 
 ###############################################################################
 #                        Factorization Functions                              #

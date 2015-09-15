@@ -1,7 +1,6 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from itertools import product
-from sympy import Symbol, Poly, FiniteField
 import random
 
 ###############################################################################
@@ -262,6 +261,7 @@ def wiener(dataset, cipherset):
             print "[+] d = %d" % d
             return pow(y, d, n)
 def franklin_raiter(dataset, a, b, cipherset):
+  from sympy import Symbol, Poly, FiniteField
   F = FiniteField(dataset[0].n)
   x = Symbol("x")
 

@@ -4,7 +4,6 @@ from itertools import product
 from scryptos.math import arithmetic, contfrac
 import random
 
-
 class RSA:
   def __init__(s, e, n, **kwargs):
     s.e = e

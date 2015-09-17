@@ -18,13 +18,19 @@ class RSA:
     elif "d" in kwargs.keys():
       s.d = kwargs["d"]
   def __getitem__(s, n):
-    cond = {
-        "e":s.e,
-        "n":s.n,
-        "p":s.p,
-        "q":s.q,
-        "d":s.d
-    }
+    if s.has_private():
+      cond = {
+          "e":s.e,
+          "n":s.n,
+          "p":s.p,
+          "q":s.q,
+          "d":s.d
+      }
+    else:
+      cond = {
+          "e":s.e,
+          "n":s.n,
+      }
     if n in cond.keys():
       return cond[n]
   def decrypt(s, c):
@@ -157,7 +163,7 @@ def common_private_exponent(dataset):
   eset = map(lambda x:x.e, dataset)
   nset = map(lambda x:x.n, dataset)
   r = len(eset)
-  M = isqrt(nset[r - 1])
+  M = arithmetic.isqrt(nset[r - 1])
   B = []
   B.append([M] + eset)
   for x in xrange(r):
@@ -180,15 +186,15 @@ def wiener(dataset, cipherset):
   for x,y in zip(dataset, cipherset):
     e = x.e
     n = x.n
-    frac = rational_to_contfrac(e, n)
-    convergents = convergents_from_contfrac(frac)
+    frac = contfrac.rational_to_contfrac(e, n)
+    convergents = contfrac.convergents_from_contfrac(frac)
     for (k,d) in convergents:
       if k!=0 and (e*d-1)%k == 0:
         phi = (e*d-1)//k
         s = n - phi + 1
         discr = s*s - 4*n
         if(discr>=0):
-          t = is_perfect_square(discr)
+          t = arithmetic.is_perfect_square(discr)
           if t!=-1 and (s+t)%2==0:
             print "[+] d = %d" % d
             return pow(y, d, n)
@@ -199,7 +205,7 @@ def franklin_raiter(dataset, a, b, cipherset):
 
   g1 = Poly(x**dataset[0].e - cipherset[0], domain=F)
   g2 = Poly(((a*x+b))**dataset[1].e - cipherset[1], domain=F)
-  while any(map(lambda x: x != 0, g2.coeffs())):
+  while all(map(lambda x: x != 0, g2.all_coeffs())):
     g1, g2 = g2, g1 % g2
   g = g.monic()
   print "[+] g = %s" % repr(g)

@@ -1,4 +1,4 @@
-from Crypto.PublicKey import RSA
+from Crypto.PublicKey import RSA as RSA_pycrypto
 from Crypto.Cipher import PKCS1_OAEP
 from itertools import product
 from scryptos.math import arithmetic, contfrac
@@ -47,9 +47,9 @@ class RSA:
     return "RSA %s Key(e=%d, n=%d%s)" % (s.has_private()and"Private"or"Public", s.e, s.n, ", p=%d, q=%d, d=%d" % (s.p, s.q, s.d) if s.has_private() else "")
   def export_pem(s):
     if s.has_private():
-      d = RSA.construct((s.n, s.e, s.d, s.p, s.q))
+      d = RSA_pycrypto.construct((s.n, s.e, s.d, s.p, s.q))
     elif hasattr(s, "d"):
-      d = RSA.construct((s.n, s.e, s.d))
+      d = RSA_pycrypto.construct((s.n, s.e, s.d))
     return d.exportKey()
 
 ###############################################################################
@@ -67,13 +67,13 @@ def bitlength(x):
 def totient(*args):
   return reduce(lambda x,y: x*(y-1), map(int, args))
 def gen_d(e, p, q):
-  l = lcm(p-1, q-1)
-  d = egcd(e, l)[1]
+  l = arithmetic.lcm(p-1, q-1)
+  d = arithmetic.egcd(e, l)[1]
   if d < 0:
     d += l
   return d
 def decrypt_pkcs1_oaep(ciphertext, rsa):
-  key = PKCS1_OAEP.new(RSA.construct((rsa.n, rsa.e, rsa.d, rsa.p, rsa.q)))
+  key = PKCS1_OAEP.new(RSA_pycrypto.construct((rsa.n, rsa.e, rsa.d, rsa.p, rsa.q)))
   plaintext = key.decrypt(ciphertext.decode("base64"))
   return plaintext
 
@@ -81,7 +81,7 @@ def decrypt_pkcs1_oaep(ciphertext, rsa):
 #                              Core Functions                                 #
 ###############################################################################
 def load_rsa(fname, debug = False):
-  rsa = RSA.importKey(open(fname).read())
+  rsa = RSA_pycrypto.importKey(open(fname).read())
   if debug:
     print "[+] Successfully Load File: %s" % fname
     if rsa.has_private():
@@ -106,13 +106,13 @@ def decrypt_rsa(dataset, cipherset = []):
   elif any([x.e > 65537 ** 2 for x in dataset]):
     print "[-] Wiener's Attack"
     return wiener(dataset, cipherset)
-  elif any([not (x == y or gcd(x.n, y.n) == 1) for x,y in product(dataset, repeat=2)]):
+  elif any([not (x == y or arithmetic.gcd(x.n, y.n) == 1) for x,y in product(dataset, repeat=2)]):
     print "[+] Found GCD!"
     for a,b in product(force_zip(dataset, cipherset), repeat=2):
       x = a[0]
       y = b[0]
-      if not (x == y or gcd(x.n, y.n) == 1):
-        p = gcd(x.n, y.n)
+      if not (x == y or arithmetic.gcd(x.n, y.n) == 1):
+        p = arithmetic.gcd(x.n, y.n)
         print "x :",x,"\ny :",y
         print "p1 = p2 = gcd(n1,n2) =",p
         print "q1 =",x.n/p
@@ -145,14 +145,14 @@ def common_modulus(dataset, cipherset):
   for r,s in product(zip(dataset, cipherset), repeat=2):
     x = r[0]
     y = s[0]
-    if gcd(x.e, y.e) == 1:
-      g, a, b = egcd(x.e, y.e)
+    if arithmetic.gcd(x.e, y.e) == 1:
+      g, a, b = arithmetic.egcd(x.e, y.e)
       n = x.n
       if a < 0:
-        i = modinv(r[1], n)
+        i = arithmetic.modinv(r[1], n)
         return pow(i, -a, n) * pow(s[1], b, n) % n
       elif b < 0:
-        i = modinv(s[1], n)
+        i = arithmetic.modinv(s[1], n)
         return pow(r[1], a, n) * pow(i, -b, n) % n
       else:
         return pow(r[1], a, n) * pow(s[1], b, n) % n
@@ -177,8 +177,8 @@ def hastad_broadcast(dataset, cipherset):
     items = []
     for x,y in zip(dataset, cipherset):
       items.append((y, x.n))
-    x = chinese_remainder_theorem(items)
-    r = nth_root(x,e)
+    x = arithmetic.chinese_remainder_theorem(items)
+    r = arithmetic.nth_root(x,e)
     return r
 def wiener(dataset, cipherset):
   import sys
@@ -222,8 +222,8 @@ def fact_mersenne(n):
       return ((2**x-1), n/(2**x-1))
   return None
 def fact_fermat(n):
-  x = isqrt(n) + 1
-  y = isqrt(x**2-n)
+  x = arithmetic.isqrt(n) + 1
+  y = arithmetic.isqrt(x**2-n)
   while True:
     w = x**2 - n - y**2
     if w == 0:
@@ -243,7 +243,7 @@ def fact_p1(n):
     x = ((x*x)%n+c)%n
     y = ((y*y)%n+c)%n
     y = ((y*y)%n+c)%n
-    g = gcd(abs(x-y),n)
+    g = arithmetic.gcd(abs(x-y),n)
   return (g, n/g)
 def fact_brent(n):
   if n%2==0: return 2
@@ -259,12 +259,12 @@ def fact_brent(n):
       for i in range(min(m,r-k)):
         y = ((y*y)%n+c)%n
         q = q*(abs(x-y))%n
-      g = gcd(q,n)
+      g = arithmetic.gcd(q,n)
       k = k + m
     r = r*2
   if g==n:
     while True:
       ys = ((ys*ys)%n+c)%n
-      g = gcd(abs(x-ys),n)
+      g = arithmetic.gcd(abs(x-ys),n)
       if g>1: break
   return (g, n/g)

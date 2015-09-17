@@ -100,7 +100,7 @@ def decrypt_rsa(dataset, cipherset = []):
   if e == len(dataset) and all([e == x["e"] for x in dataset]):
       print "[+] Hastad Broadcast Attack"
       return hastad_broadcast(dataset, cipherset)
-  elif any([x.n == y.n and gcd(x.e, y.e) == 1 for x,y in product(dataset, repeat = 2)]):
+  elif any([x.n == y.n and arithmetic.gcd(x.e, y.e) == 1 for x,y in product(dataset, repeat = 2)]):
     print "[+] Common Modulus Attack"
     return common_modulus(dataset, cipherset)
   elif any([x.e > 65537 ** 2 for x in dataset]):

@@ -18,6 +18,26 @@ class EllipticCurve:
   def determinant(s):
     return s.ring(-16*(4 * s.a**3 + 27 * s.b**2), s.p)
 
+  def Add(s, P, Q):
+    if P.infinity():
+      P, Q = Q, P
+    if Q.infinity():
+      return P
+
+    if P == Q:
+      l = (3 * P.x**2 + s.a) * modinv(2 * P.y.v, s.p)
+    else:
+      l = (Q.y - P.y) * modinv((Q.x - P.x).v, s.p)
+
+    l = s.ring(l, s.p)
+    Rx = l**2 - P.x - Q.x
+    Ry = l*(P.x - Rx) - P.y
+    return ECPoint(s, Rx, Ry)
+
+  def Negate(s, P):
+    if s.infinity(): return ECPoint(s, 0, 0)
+    else: return ECPoint(s, P.x, -P.y)
+
   def __repr__(s):
     return "Elliptic Curve y^2 = x^3 + %sx + %s on %s" % (s.a, s.b, s.ring)
 
@@ -32,40 +52,18 @@ class ECPoint:
       raise Exception("(%d, %d) is not curve point!" % (x, y))
 
   def infinity(s):
-    return s.x == s.y == 0
+    return s.x == s.y == FiniteField(0, s.p)
 
   def __add__(s, o):
-    P = s
-    Q = o
-    if P.infinity():
-      P, Q = Q, P
-    if Q.infinity():
-      return P
-
-    if P == Q:
-      l = (3 * P.x**2 + curve.a) * modinv(2 * P.y, s.p)
-    else:
-      l = (Q.y - P.y) * modinv(Q.x - P.x, s.p)
-
-    l = s.ring(l, s.p)
-    Rx = l**2 - P.x - Q.x
-    Ry = l*(P.x - Rx) - P.y
-    return ECPoint(s.c, Rx, Ry)
+    return s.c.Add(s, o)
 
   def __sub__(s, o):
     return s + -o
 
   def __neg__(s):
-    if s.infinity(): return ECPoint(s.c, 0, 0)
-    else: return ECPoint(s.c, s.x, -s.y)
+    return s.c.Negate(s)
 
   def __mul__(s, n):
-    return pow(s, n)
-
-  def __rmul__(s, n):
-    return pow(s, n)
-
-  def __pow__(s, n):
     P = s
     res = ECPoint(s.c, 0, 0)
     if n < 0:
@@ -78,5 +76,8 @@ class ECPoint:
       n >>= 1
     return res
 
+  def __rmul__(s, n):
+    return s.__mul__(n)
+
   def __repr__(s):
-    return "ECPoint(%s, %s) on %s" % (s.x, s.y, s.c)
+    return "ECPoint(%s, %s) on %s" % (s.x.v, s.y.v, s.c)

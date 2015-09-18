@@ -24,7 +24,9 @@ class FiniteField:
     return FiniteField(s.v - o.v, s.p)
 
   def __rmul__(s, o):
-    return s.__mul__(o)
+    if not hasattr(o, "v"):
+      return s * FiniteField(o, s.p)
+    return FiniteField(s.v * o.v, s.p)
 
   def __mul__(s, o):
     if not hasattr(o, "v"):
@@ -35,17 +37,6 @@ class FiniteField:
     if not hasattr(o, "v"):
       return s / FiniteField(o, s.p)
     return FiniteField(s.v * modinv(o.v, s.p), s.p)
-
-  def __mod__(s, n):
-    if n == 0 or s.v == 0:
-      return FiniteField(0, s.p)
-    return FiniteField(s.v % n, s.p)
-
-  def __rmod__(s, n):
-    if n == 0 or s.v == 0:
-      return FiniteField(0, s.p)
-    return FiniteField(n % s.v, s.p)
-
   def __pow__(s, x):
     return FiniteField(pow(s.v, x, s.p), s.p)
 

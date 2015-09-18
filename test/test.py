@@ -1,8 +1,23 @@
 #!/usr/bin/env python
 import unittest
+from scryptos.crypto.rabin import *
 from scryptos.rsautil import *
 
-class RsaTest(unittest.TestCase):
+class RabinTest(unittest.TestCase):
+
+    def test(self):
+        pubkey = Rabin(n=77, b=2)
+        c = pubkey.encrypt(32)
+        print c
+
+        privkey = Rabin(n=77, b=2, p=7, q=11)
+        m_list = privkey.decrypt(c)
+        print m_list
+        self.assertTrue(32 in m_list)
+
+
+
+class RSATest(unittest.TestCase):
 
     def test_rsa(self):
         rsa = RSA(7, 17*19)

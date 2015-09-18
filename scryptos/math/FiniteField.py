@@ -13,10 +13,16 @@ class FiniteField:
     if s.v < 0:
       s.v += p
 
+  def __radd__(s, o):
+    return s.__add__(o)
+
   def __add__(s, o):
     if not hasattr(o, "v"):
       return s + FiniteField(o, s.p)
     return FiniteField(s.v + o.v, s.p)
+
+  def __rsub__(s, o):
+    return s.__sub__(o)
 
   def __sub__(s, o):
     if not hasattr(o, "v"):
@@ -37,6 +43,7 @@ class FiniteField:
     if not hasattr(o, "v"):
       return s / FiniteField(o, s.p)
     return FiniteField(s.v * modinv(o.v, s.p), s.p)
+
   def __pow__(s, x):
     return FiniteField(pow(s.v, x, s.p), s.p)
 

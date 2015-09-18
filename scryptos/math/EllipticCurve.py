@@ -50,10 +50,10 @@ class EdwardsCurve:
       raise Exception("Invalid params of a, b(not smooth!)")
 
   def determinant(s):
-    return s.ring(s.c*s.d * (s.ring(1, s.p) - s.c**4 * s.d), s.p).v
+    return s.ring(s.c*s.d * (1 - s.c**4 * s.d), s.p).v
 
   def isoncurve(s, x, y):
-    return s.ring(x**2+y**2, s.p) == s.ring((s.c ** 2) * (s.ring(1, s.p) + s.d*x**2 * y**2), s.p)
+    return s.ring(x**2+y**2, s.p) == s.ring((s.c ** 2) * (1 + s.d*x**2 * y**2), s.p)
 
   def Add(s, P, Q):
     if P.infinity():
@@ -61,8 +61,8 @@ class EdwardsCurve:
     if Q.infinity():
       return P
 
-    Rx = (P.x * Q.y + P.y * Q.x) * modinv((s.ring(1, s.p) + s.d * P.x * Q.x * P.y * Q.y).v, s.p)
-    Ry = (P.y * Q.y - P.x * Q.x) * modinv((s.ring(1, s.p) - s.d * P.x * Q.x * P.y * Q.y).v, s.p)
+    Rx = (P.x * Q.y + P.y * Q.x) * modinv((1 + s.d * P.x * Q.x * P.y * Q.y).v, s.p)
+    Ry = (P.y * Q.y - P.x * Q.x) * modinv((1 - s.d * P.x * Q.x * P.y * Q.y).v, s.p)
     return ECPoint(s, Rx, Ry)
 
   def Negate(s, P):

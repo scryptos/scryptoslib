@@ -39,7 +39,38 @@ class EllipticCurve:
     else: return ECPoint(s, P.x, -P.y)
 
   def __repr__(s):
-    return "Elliptic Curve y^2 = x^3 + %sx + %s on %s" % (s.a, s.b, s.ring)
+    return "Elliptic Curve y^2 = x^3 + %dx + %d on %s" % (s.a.v, s.b.v, s.ring)
+class EdwardsCurve:
+  def __init__(s, c, d, p, ring=FiniteField):
+    s.ring = ring
+    s.p = p
+    s.c = ring(c, p)
+    s.d = ring(d, p)
+    if s.determinant() == 0:
+      raise Exception("Invalid params of a, b(not smooth!)")
+
+  def determinant(s):
+    return s.ring(s.c*s.d * (s.ring(1, s.p) - s.c**4 * s.d), s.p).v
+
+  def isoncurve(s, x, y):
+    return s.ring(x**2+y**2, s.p) == s.ring((s.c ** 2) * (s.ring(1, s.p) + s.d*x**2 * y**2), s.p)
+
+  def Add(s, P, Q):
+    if P.infinity():
+      P, Q = Q, P
+    if Q.infinity():
+      return P
+
+    Rx = (P.x * Q.y + P.y * Q.x) * modinv((s.ring(1, s.p) + s.d * P.x * Q.x * P.y * Q.y).v, s.p)
+    Ry = (P.y * Q.y - P.x * Q.x) * modinv((s.ring(1, s.p) - s.d * P.x * Q.x * P.y * Q.y).v, s.p)
+    return ECPoint(s, Rx, Ry)
+
+  def Negate(s, P):
+    if s.infinity(): return ECPoint(s, 0, 0)
+    else: return ECPoint(s, P.x, -P.y)
+
+  def __repr__(s):
+    return "Edwards Curve x^2+y^2 = %d(1+%dx^2y^2) on %s" % (s.c.v, s.d.v, s.ring)
 
 class ECPoint:
   def __init__(s, curve, x, y):

@@ -207,7 +207,7 @@ def franklin_raiter(dataset, a, b, cipherset):
   g2 = Poly(((a*x+b))**dataset[1].e - cipherset[1], domain=F)
   while all(map(lambda x: x != 0, g2.all_coeffs())):
     g1, g2 = g2, g1 % g2
-  g = g.monic()
+  g = g1.monic()
   print "[+] g = %s" % repr(g)
 
   m = -g.all_coeffs()[-1]
@@ -239,7 +239,7 @@ def fact_p1(n):
   y = x
   c = random.randint(1, n-1)
   g = 1
-  while g==1:            
+  while g==1:
     x = ((x*x)%n+c)%n
     y = ((y*y)%n+c)%n
     y = ((y*y)%n+c)%n

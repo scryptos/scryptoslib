@@ -2,6 +2,7 @@ from Crypto.PublicKey import RSA as RSA_pycrypto
 from Crypto.Cipher import PKCS1_OAEP
 from itertools import product
 from scryptos.math import arithmetic, contfrac
+from scryptos.wrapper import parigp
 import random
 
 class RSA:
@@ -198,19 +199,32 @@ def wiener(dataset, cipherset):
           if t!=-1 and (s+t)%2==0:
             print "[+] d = %d" % d
             return pow(y, d, n)
-def franklin_raiter(dataset, a, b, cipherset):
-  from sympy import Symbol, Poly, FiniteField
-  F = FiniteField(dataset[0].n)
-  x = Symbol("x")
+def franklin_raiter(dataset, a, b, cipherset, impl = "PariGP"):
+  if impl == "PariGP":
+    expressions = []
+    rsa = dataset[0]
+    c = cipherset
+    expressions.append("g1 = x^%d - %d" % (rsa.e, c[0]))
+    expressions.append("g2 = (%d*x+%d)^%d - %d" % (a, b, rsa.e, c[1]))
+    expressions.append("g1 = Pol(Vec(g1) * Mod(1, %d))" % rsa.n)
+    expressions.append("g2 = Pol(Vec(g2) * Mod(1, %d))" % rsa.n)
+    expressions.append("g=gcd(g1,g2)")
+    expressions.append("lift(-Vec((Pol(Vec(g)*Vec(g)[1]^-1)))[2])")
+    r = eval(parigp.parigp(expressions))
+    return r
+  else:
+    from sympy import Symbol, Poly, FiniteField
+    F = FiniteField(dataset[0].n)
+    x = Symbol("x")
 
-  g1 = Poly(x**dataset[0].e - cipherset[0], domain=F)
-  g2 = Poly(((a*x+b))**dataset[1].e - cipherset[1], domain=F)
-  while all(map(lambda x: x != 0, g2.all_coeffs())):
-    g1, g2 = g2, g1 % g2
-  g = g1.monic()
-  print "[+] g = %s" % repr(g)
+    g1 = Poly(x**dataset[0].e - cipherset[0], domain=F)
+    g2 = Poly(((a*x+b))**dataset[1].e - cipherset[1], domain=F)
+    while all(map(lambda x: x != 0, g2.all_coeffs())):
+      g1, g2 = g2, g1 % g2
+    g = g1.monic()
+    print "[+] g = %s" % repr(g)
 
-  m = -g.all_coeffs()[-1]
+    m = -g.all_coeffs()[-1]
   return m
 
 ###############################################################################

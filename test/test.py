@@ -15,8 +15,6 @@ class RabinTest(unittest.TestCase):
         print m_list
         self.assertTrue(32 in m_list)
 
-
-
 class RSATest(unittest.TestCase):
 
     def test_rsa(self):

@@ -1,0 +1,6 @@
+all_table       = map(chr, xrange(0, 256))
+digit_table     = map(chr, xrange(0x30, 0x3a))
+ascii_table     = map(chr, xrange(0, 0x80))
+printable_table = map(chr, xrange(0x20, 0x80))
+upper_table     = map(chr, xrange(0x41, 0x5B))
+lower_table     = map(chr, xrange(0x61, 0x7B))

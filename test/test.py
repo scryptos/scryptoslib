@@ -2,7 +2,8 @@
 import unittest
 from scryptos.crypto.rabin import *
 from scryptos.rsautil import *
-from scryptos.util import hexutil
+from scryptos.util import hexutil, tables
+from scryptos.misc import xorsearch, diffsearch
 
 class RabinTest(unittest.TestCase):
 
@@ -72,6 +73,11 @@ class HexUtilTest(unittest.TestCase):
         t = hexutil.hex(127, 4)
         self.assertTrue(t == "0x007f")
 
+        t = hexutil.unhex("10203040")
+        self.assertTrue(t == 0x10203040)
+        t = hexutil.unhex("de ad beef")
+        self.assertTrue(t == 0xdeadbeef)
+
     def test_pack(self):
       t = hexutil.p64(0xcafebabedeadbeef)
       print repr(t)
@@ -105,6 +111,20 @@ class HexUtilTest(unittest.TestCase):
       t = hexutil.u8("\x7f")
       print repr(t)
       self.assertTrue(t == 0x7f)
+
+    def test_bswap(self):
+      t = hexutil.bswap("\xde\xad\xbe\xef")
+      self.assertTrue(t == "\xef\xbe\xad\xde")
+
+class SearcherTest(unittest.TestCase):
+  def test_xor(s):
+    t = xorsearch.XORSearch("g\x19\x1e\x1c", "%PDF", mxlen=4, mslen=4, table=tables.upper_table, silent=True)
+    s.assertTrue(t == [("BIZZ", "%PDF")])
+
+  def test_diff(s):
+    t = diffsearch.DiffSearch([-57, -2, -7], "PNG", silent=True)
+    s.assertTrue(t == ["\x89PNG"])
+
 
 if __name__ == '__main__':
     unittest.main()

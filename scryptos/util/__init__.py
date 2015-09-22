@@ -1,2 +1,2 @@
 
-from . import hexutil
+from hexutil import *

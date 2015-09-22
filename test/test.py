@@ -2,6 +2,7 @@
 import unittest
 from scryptos.crypto.rabin import *
 from scryptos.rsautil import *
+from scryptos.util import hexutil
 
 class RabinTest(unittest.TestCase):
 
@@ -63,6 +64,47 @@ class RSATest(unittest.TestCase):
         print m
         self.assertTrue(m == 12345)
 
+class HexUtilTest(unittest.TestCase):
+
+    def test_hex(self):
+        t = hexutil.hex(127)
+        self.assertTrue(t == "0x7f")
+        t = hexutil.hex(127, 4)
+        self.assertTrue(t == "0x007f")
+
+    def test_pack(self):
+      t = hexutil.p64(0xcafebabedeadbeef)
+      print repr(t)
+      self.assertTrue(t == "\xef\xbe\xad\xde\xbe\xba\xfe\xca")
+
+      t = hexutil.p32(0xdeadbeef)
+      print repr(t)
+      self.assertTrue(t == "\xef\xbe\xad\xde")
+
+      t = hexutil.p16(0x1234)
+      print repr(t)
+      self.assertTrue(t == "\x34\x12")
+
+      t = hexutil.p8(0x7f)
+      print repr(t)
+      self.assertTrue(t == "\x7f")
+
+    def test_unpack(self):
+      t = hexutil.u64("\xef\xbe\xad\xde\xbe\xba\xfe\xca")
+      print repr(t)
+      self.assertTrue(t == 0xcafebabedeadbeef)
+
+      t = hexutil.u32("\xef\xbe\xad\xde")
+      print repr(t)
+      self.assertTrue(t == 0xdeadbeef)
+
+      t = hexutil.u16("\x34\x12")
+      print repr(t)
+      self.assertTrue(t == 0x1234)
+
+      t = hexutil.u8("\x7f")
+      print repr(t)
+      self.assertTrue(t == 0x7f)
 
 if __name__ == '__main__':
     unittest.main()

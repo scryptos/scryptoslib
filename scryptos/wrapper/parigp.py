@@ -8,9 +8,12 @@ def check():
     return False
   return True
 
-def parigp(cmd):
+def parigp(cmd, isAll=False):
   assert check()
   s = "\n".join(cmd)
   p = Popen(["gp", "-q"], stdin=PIPE, stdout=PIPE)
   d, _ = p.communicate(s)
-  return d.split("\n")[:-1][-1]
+  if isAll:
+    return d.split("\n")[:-1]
+  else:
+    return d.split("\n")[:-1][-1]

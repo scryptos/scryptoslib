@@ -1,5 +1,6 @@
 from Crypto.PublicKey import RSA as RSA_pycrypto
 from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Random import random
 from itertools import product
 from scryptos.math import arithmetic, contfrac
 from scryptos.wrapper import parigp
@@ -18,6 +19,8 @@ class RSA:
       s.d = gen_d(s.e, s.p, s.q)
     elif "d" in kwargs.keys():
       s.d = kwargs["d"]
+      s.p, s.q = factoring_from_d(s, s.d)
+
   def __getitem__(s, n):
     if s.has_private():
       cond = {
@@ -282,3 +285,20 @@ def fact_brent(n):
       g = arithmetic.gcd(abs(x-ys),n)
       if g>1: break
   return (g, n/g)
+def factoring_from_d(rsa, d):
+  k = rsa.e * d - 1
+  g = 0
+  x = 0
+  while True:
+    g = random.randrange(2, rsa.n - 1)
+    t = k
+    while t % 2 == 0:
+      t = t / 2
+      x = pow(g, t, rsa.n)
+
+      y = arithmetic.gcd(x - 1, rsa.n)
+      if x > 1 and y > 1:
+        p = y
+        q = rsa.n / y
+        return (max(p, q), min(p, q))
+

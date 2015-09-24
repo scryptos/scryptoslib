@@ -36,7 +36,7 @@ class RSATest(unittest.TestCase):
         c1 = rsa1.encrypt(123)
         c2 = rsa2.encrypt(123)
 
-        m = common_modulus([rsa1, rsa2], [c1, c2])
+        m = common_modulus(rsa1, rsa2, c1, c2)
         print m
         self.assertTrue(m == 123)
 
@@ -61,7 +61,9 @@ class RSATest(unittest.TestCase):
 
         rsa = RSA(e, n)
         c = rsa.encrypt(12345)
-        m = wiener([rsa], [c])
+        rsa = wiener(rsa)
+        print rsa
+        m = rsa.decrypt(c)
         print m
         self.assertTrue(m == 12345)
 

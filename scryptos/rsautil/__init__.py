@@ -1,7 +1,6 @@
 from Crypto.PublicKey import RSA as RSA_pycrypto
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Random import random
-from itertools import product
 from scryptos.math import arithmetic, contfrac
 from scryptos.wrapper import parigp
 import random
@@ -59,8 +58,6 @@ class RSA:
 ###############################################################################
 #                             Helper Functions                                #
 ###############################################################################
-def force_zip(a,b):
-  return zip(a + [None] * (max(len(b) - len(a), 0)), b + [None] * (max(len(a) - len(b)), 0))
 def bitlength(x):
     assert x >= 0
     n = 0
@@ -69,7 +66,10 @@ def bitlength(x):
         x = x>>1
     return n
 def totient(*args):
-  return reduce(lambda x,y: x*(y-1), map(int, args))
+  r = 1
+  for x in map(int, args):
+    r *= x - 1
+  return r
 def gen_d(e, p, q):
   l = arithmetic.lcm(p-1, q-1)
   d = arithmetic.egcd(e, l)[1]
@@ -80,10 +80,6 @@ def decrypt_pkcs1_oaep(ciphertext, rsa):
   key = PKCS1_OAEP.new(RSA_pycrypto.construct((rsa.n, rsa.e, rsa.d, rsa.p, rsa.q)))
   plaintext = key.decrypt(ciphertext.decode("base64"))
   return plaintext
-
-###############################################################################
-#                              Core Functions                                 #
-###############################################################################
 def load_rsa(fname, debug = False):
   rsa = RSA_pycrypto.importKey(open(fname).read())
   if debug:
@@ -98,69 +94,22 @@ def load_rsa(fname, debug = False):
     return RSA(rsa.e, rsa.n, p=rsa.p, q=rsa.q, d=rsa.d)
   else:
     return RSA(rsa.e, rsa.n)
-def decrypt_rsa(dataset, cipherset = []):
-  e = dataset[0].e
-  n = dataset[0].n
-  if e == len(dataset) and all([e == x["e"] for x in dataset]):
-      print "[+] Hastad Broadcast Attack"
-      return hastad_broadcast(dataset, cipherset)
-  elif any([x.n == y.n and arithmetic.gcd(x.e, y.e) == 1 for x,y in product(dataset, repeat = 2)]):
-    print "[+] Common Modulus Attack"
-    return common_modulus(dataset, cipherset)
-  elif any([x.e > 65537 ** 2 for x in dataset]):
-    print "[-] Wiener's Attack"
-    return wiener(dataset, cipherset)
-  elif any([not (x == y or arithmetic.gcd(x.n, y.n) == 1) for x,y in product(dataset, repeat=2)]):
-    print "[+] Found GCD!"
-    for a,b in product(force_zip(dataset, cipherset), repeat=2):
-      x = a[0]
-      y = b[0]
-      if not (x == y or arithmetic.gcd(x.n, y.n) == 1):
-        p = arithmetic.gcd(x.n, y.n)
-        print "x :",x,"\ny :",y
-        print "p1 = p2 = gcd(n1,n2) =",p
-        print "q1 =",x.n/p
-        print "q2 =",y.n/p
-        e = x.e
-        n = x.n
-        p = p
-        q = x.n/p
-        c = a[1]
-        return RSA(e, n, p=p, q=q).decrypt(c)
-        break
-  elif any([(d.n%2) == 1 and len(hex(d.n).replace("ff", "")) < (len(hex(d.n)) - 5) for d in dataset]):
-    print "[+] Trying Mersenne Prime Factorization..."
-    for d,f in force_zip(dataset, cipherset):
-      print d
-      if (d.n%2) == 1 and len(hex(d.n).replace("ff", "")) < (len(hex(d.n)) - 5):
-        n = d.n
-        m = fact_mersenne(n)
-        if not m == None:
-          print "[+] p = %d, q = %d" % m
-          return RSA(d.e, n, p=m[0], q=m[1])
-    print "[-] Not Mersenne Prime..."
-  else:
-    print "[*] Unknown"
 
 ###############################################################################
 #                            Attack Functions                                 #
 ###############################################################################
-def common_modulus(dataset, cipherset):
-  for r,s in product(zip(dataset, cipherset), repeat=2):
-    x = r[0]
-    y = s[0]
-    if arithmetic.gcd(x.e, y.e) == 1:
-      g, a, b = arithmetic.egcd(x.e, y.e)
-      n = x.n
-      if a < 0:
-        i = arithmetic.modinv(r[1], n)
-        return pow(i, -a, n) * pow(s[1], b, n) % n
-      elif b < 0:
-        i = arithmetic.modinv(s[1], n)
-        return pow(r[1], a, n) * pow(i, -b, n) % n
-      else:
-        return pow(r[1], a, n) * pow(s[1], b, n) % n
-  raise ValueError("Invalid Dataset")
+def common_modulus(rsa1, rsa2, c1, c2):
+  assert arithmetic.gcd(rsa1.e, rsa2.e) == 1
+  g, a, b = arithmetic.egcd(rsa1.e, rsa2.e)
+  n = rsa1.n
+  if a < 0:
+    i = arithmetic.modinv(c1, n)
+    return pow(i, -a, n) * pow(c2, b, n) % n
+  elif b < 0:
+    i = arithmetic.modinv(c2, n)
+    return pow(c1, a, n) * pow(i, -b, n) % n
+  else:
+    return pow(c1, a, n) * pow(c2, b, n) % n
 def common_private_exponent(dataset):
   # Referenced : http://ijcsi.org/papers/IJCSI-9-2-1-311-314.pdf
   from scryptos.wrapper import fplll
@@ -176,32 +125,32 @@ def common_private_exponent(dataset):
   d = abs(S[0])/M
   return d
 def hastad_broadcast(dataset, cipherset):
+  assert len(set([x.e for x in dataset])) == 1
+  assert len(cipherset) == len(dataset) == dataset[0].e
   e = dataset[0].e
-  if e == len(dataset) and all([e == x.e for x in dataset]):
-    items = []
-    for x,y in zip(dataset, cipherset):
-      items.append((y, x.n))
-    x = arithmetic.chinese_remainder_theorem(items)
-    r = arithmetic.nth_root(x,e)
-    return r
-def wiener(dataset, cipherset):
+  items = []
+  for x,y in zip(dataset, cipherset):
+    items.append((y, x.n))
+  x = arithmetic.chinese_remainder_theorem(items)
+  r = arithmetic.nth_root(x,e)
+  return r
+def wiener(rsa):
   import sys
   sys.setrecursionlimit(65537)
-  for x,y in zip(dataset, cipherset):
-    e = x.e
-    n = x.n
-    frac = contfrac.rational_to_contfrac(e, n)
-    convergents = contfrac.convergents_from_contfrac(frac)
-    for (k,d) in convergents:
-      if k!=0 and (e*d-1)%k == 0:
-        phi = (e*d-1)//k
-        s = n - phi + 1
-        discr = s*s - 4*n
-        if(discr>=0):
-          t = arithmetic.is_perfect_square(discr)
-          if t!=-1 and (s+t)%2==0:
-            print "[+] d = %d" % d
-            return pow(y, d, n)
+  e = rsa.e
+  n = rsa.n
+  frac = contfrac.rational_to_contfrac(e, n)
+  convergents = contfrac.convergents_from_contfrac(frac)
+  for (k,d) in convergents:
+    if k!=0 and (e*d-1)%k == 0:
+      phi = (e*d-1)//k
+      s = n - phi + 1
+      discr = s*s - 4*n
+      if(discr>=0):
+        t = arithmetic.is_perfect_square(discr)
+        if t!=-1 and (s+t)%2==0:
+          print "[+] d = %d" % d
+          return RSA(e=e, n=n, d=d)
 def franklin_raiter(dataset, a, b, cipherset, impl = "PariGP"):
   if impl == "PariGP":
     expressions = []
@@ -290,7 +239,7 @@ def factoring_from_d(rsa, d):
   g = 0
   x = 0
   while True:
-    g = random.randrange(2, rsa.n - 1)
+    g = random.randint(2, rsa.n - 1)
     t = k
     while t % 2 == 0:
       t = t / 2

@@ -63,4 +63,3 @@ class ELF:
     for x in s.symbols:
       if x.name == name:
         return x.sym_value
-

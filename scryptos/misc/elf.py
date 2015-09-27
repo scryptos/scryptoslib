@@ -32,7 +32,8 @@ class SymTab:
     return 16
 
 class ELF:
-  def __init__(s, f):
+  def __init__(s, f, base=0):
+    s.base = base
     s.data = open(f, "rb").read()
     s.ehdr = EHDR(s.data)
     data = s.data[s.ehdr.e_phdrpos:]
@@ -49,8 +50,11 @@ class ELF:
       s.symbols += [SymTab(d[:16], strtab)]
       d = d[len(s.symbols[0]):]
 
+  def set_base(s, base):
+    s.base = base
+
   def section(s, name):
-    return s._section(name).sh_addr
+    return s._section(name).sh_addr + s.base
 
   def _section(s, name):
     shstrtab = s.shdrs[s.ehdr.e_strsec]
@@ -62,4 +66,9 @@ class ELF:
   def addr(s, name):
     for x in s.symbols:
       if x.name == name:
-        return x.sym_value
+        return x.sym_value + s.base
+
+  def resolve_name(s, address):
+    for x in s.symbols:
+      if x.sym_value + s.base <= address <= x.sym_value + x.sym_size + s.base:
+        return x.name

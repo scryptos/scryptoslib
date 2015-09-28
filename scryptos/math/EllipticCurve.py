@@ -83,7 +83,7 @@ class ECPoint:
       raise Exception("(%d, %d) is not curve point!" % (x, y))
 
   def infinity(s):
-    return s.x == s.y == FiniteField(0, s.p)
+    return s.x == s.y == s.ring(0, s.p)
 
   def __add__(s, o):
     return s.c.Add(s, o)

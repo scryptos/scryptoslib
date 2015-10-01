@@ -79,6 +79,7 @@ class ECPoint:
     s.p = s.c.p
     s.x = s.ring(x, s.p)
     s.y = s.ring(y, s.p)
+    s.memo = {}
     if not(s.infinity() or s.c.isoncurve(s.x, s.y)):
       raise Exception("(%d, %d) is not curve point!" % (x, y))
 
@@ -86,7 +87,11 @@ class ECPoint:
     return s.x == s.y == s.ring(0, s.p)
 
   def __add__(s, o):
-    return s.c.Add(s, o)
+    if repr((s.x, s.y, o.x, o.y)) in s.memo.keys():
+      return s.memo[repr((s.x, s.y, o.x, o.y))]
+    r = s.c.Add(s, o)
+    s.memo.update({repr((s.x, s.y, o.x, o.y)): r})
+    return r
 
   def __sub__(s, o):
     return s + -o
@@ -94,7 +99,18 @@ class ECPoint:
   def __neg__(s):
     return s.c.Negate(s)
 
+  def change_ring(s, ring):
+    s.ring = ring
+
+  def change_curve(s, curve):
+    if not curve.isoncurve(s.x, s.y):
+      raise Exception("(%d, %d) is not curve point!" % (x, y))
+    s.curve = curve
+    s.memo = {}
+
   def __mul__(s, n):
+    if repr((s.x, s.y, n)) in s.memo.keys():
+      return s.memo[repr((s.x, s.y, n))]
     P = s
     res = ECPoint(s.c, 0, 0)
     if n < 0:
@@ -105,6 +121,7 @@ class ECPoint:
         res += P
       P += P
       n >>= 1
+    s.memo.update({repr((s.x, s.y, n)): res})
     return res
 
   def __rmul__(s, n):

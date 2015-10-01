@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import unittest
-from scryptos.crypto.rabin import *
-from scryptos.rsautil import *
+from scryptos.crypto import *
 from scryptos.util import hexutil, tables
 from scryptos.misc import xorsearch, diffsearch
 
@@ -18,7 +17,6 @@ class RabinTest(unittest.TestCase):
         self.assertTrue(32 in m_list)
 
 class RSATest(unittest.TestCase):
-
     def test_rsa(self):
         rsa = RSA(7, 17*19)
         c = rsa.encrypt(123)
@@ -36,7 +34,7 @@ class RSATest(unittest.TestCase):
         c1 = rsa1.encrypt(123)
         c2 = rsa2.encrypt(123)
 
-        m = common_modulus(rsa1, rsa2, c1, c2)
+        m = rsa.common_modulus(rsa1, rsa2, c1, c2)
         print m
         self.assertTrue(m == 123)
 
@@ -51,7 +49,7 @@ class RSATest(unittest.TestCase):
         c1 = rsa.encrypt(m)
         c2 = rsa.encrypt(a*m+b)
 
-        m0 = franklin_raiter([rsa, rsa], a, b, [c1, c2])
+        m0 = rsautil.franklin_raiter([rsa, rsa], a, b, [c1, c2])
         print m0
         self.assertTrue(m0 == 123456)
 
@@ -61,11 +59,19 @@ class RSATest(unittest.TestCase):
 
         rsa = RSA(e, n)
         c = rsa.encrypt(12345)
-        rsa = wiener(rsa)
+        rsa = rsautil.wiener(rsa)
         print rsa
         m = rsa.decrypt(c)
         print m
         self.assertTrue(m == 12345)
+
+    def test_high_bit_known(self):
+      p, q = (10007, 10009)
+      n = p*q
+      e = 65537
+      qbar = q + 30
+      rsa = RSA(e=e, n=n)
+      self.assertTrue(rsautil.high_bit_known(rsa, qbar, "pq") == (p, q))
 
 class HexUtilTest(unittest.TestCase):
 

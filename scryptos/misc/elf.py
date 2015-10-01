@@ -43,12 +43,13 @@ class ELF:
     s.shdrs = [SHDR(data[x*s.ehdr.e_shdrent:(x+1)*s.ehdr.e_shdrent]) for x in xrange(s.ehdr.e_shdrcnt)]
     symtab = s._section(".symtab")
     strtab = s._section(".strtab")
-    d = s.data[symtab.sh_offset:symtab.sh_offset + symtab.sh_size]
-    strtab = s.data[strtab.sh_offset:strtab.sh_offset + strtab.sh_size]
     s.symbols = []
-    while len(d) > 0:
-      s.symbols += [SymTab(d[:16], strtab)]
-      d = d[len(s.symbols[0]):]
+    if not symtab == None and not strtab == None:
+      d = s.data[symtab.sh_offset:symtab.sh_offset + symtab.sh_size]
+      strtab = s.data[strtab.sh_offset:strtab.sh_offset + strtab.sh_size]
+      while len(d) > 0:
+        s.symbols += [SymTab(d[:16], strtab)]
+        d = d[len(s.symbols[0]):]
 
   def set_base(s, base):
     s.base = base
@@ -58,10 +59,11 @@ class ELF:
 
   def _section(s, name):
     shstrtab = s.shdrs[s.ehdr.e_strsec]
-    idx = s.data[shstrtab.sh_offset:shstrtab.sh_offset + shstrtab.sh_size].index(name)
-    for x in s.shdrs:
-      if x.sh_name == idx:
-        return x
+    if name in s.data[shstrtab.sh_offset:shstrtab.sh_offset + shstrtab.sh_size]:
+      idx = s.data[shstrtab.sh_offset:shstrtab.sh_offset + shstrtab.sh_size].index(name)
+      for x in s.shdrs:
+        if x.sh_name == idx:
+          return x
 
   def addr(s, name):
     for x in s.symbols:
@@ -70,5 +72,5 @@ class ELF:
 
   def resolve_name(s, address):
     for x in s.symbols:
-      if x.sym_value + s.base <= address <= x.sym_value + x.sym_size + s.base:
+      if x.sym_value + s.base <= address < x.sym_value + x.sym_size + s.base:
         return x.name

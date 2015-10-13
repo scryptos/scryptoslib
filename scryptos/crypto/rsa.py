@@ -2,8 +2,8 @@ from Crypto.PublicKey import RSA as RSA_pycrypto
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Random import random
 from scryptos.math import arithmetic, contfrac, coppersmith_howgrave
-from scryptos.wrapper import parigp
-from scryptos.util import factor
+from scryptos.wrapper import *
+from scryptos.util    import factor
 
 class RSA:
   def __init__(s, e, n, **kwargs):
@@ -101,6 +101,7 @@ def gen_d(e, p, q):
 
 def common_modulus(rsa1, rsa2, c1, c2):
   assert arithmetic.gcd(rsa1.e, rsa2.e) == 1
+  assert rsa1.n == rsa2.n
   g, a, b = arithmetic.egcd(rsa1.e, rsa2.e)
   n = rsa1.n
   if a < 0:
@@ -163,7 +164,7 @@ def franklin_raiter(dataset, a, b, cipherset, impl = "PariGP"):
     expressions.append("g2 = Pol(Vec(g2) * Mod(1, %d))" % rsa.n)
     expressions.append("g=gcd(g1,g2)")
     expressions.append("lift(-Vec((Pol(Vec(g)*Vec(g)[1]^-1)))[2])")
-    r = eval(parigp.parigp(expressions))
+    r = eval(parigp(expressions))
     return r
   else:
     from sympy import Symbol, Poly, FiniteField

@@ -133,6 +133,21 @@ class SearcherTest(unittest.TestCase):
     t = diffsearch.DiffSearch([-57, -2, -7], "PNG", silent=True)
     s.assertTrue(t == ["\x89PNG"])
 
+class AffineTest(unittest.TestCase):
+  def test_affine(s):
+    c = Affine(-1, -1)
+    s.assertTrue(c.encrypt("WEARESCRYPTOS") == "DVZIVHXIBKGLH")
+    s.assertTrue(c.decrypt("DVZIVHXIBKGLH") == "WEARESCRYPTOS")
+class VigenereTest(unittest.TestCase):
+  def test_vigenere(s):
+    c = Vigenere("CTF")
+    s.assertTrue(c.encrypt("WEARESCRYPTOS") == "YXFTXXEKDRMTU")
+    s.assertTrue(c.decrypt("YXFTXXEKDRMTU") == "WEARESCRYPTOS")
+class ScytaleTest(unittest.TestCase):
+  def test_scytale(s):
+    c = Scytale(3)
+    s.assertTrue(c.encrypt("HELLOWEARESCRYPTOS") == "HEREAYLRPLETOSOWCS")
+    s.assertTrue(c.decrypt("HEREAYLRPLETOSOWCS") == "HELLOWEARESCRYPTOS")
 
 if __name__ == '__main__':
     unittest.main()

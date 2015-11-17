@@ -1,5 +1,4 @@
 from scryptos.math import *
-from scryptos.util import on_timeout
 from Crypto.Random import random
 
 def Mersenne(n):

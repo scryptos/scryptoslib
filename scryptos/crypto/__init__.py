@@ -5,4 +5,5 @@ from rsa import RSA
 from vigenere import Vigenere
 from affine import Classical_Affine as Affine
 from scytale import Scytale
+from knapsack_mh import Decrypt_Merkle_Hellman_Knapsack
 from . import rsa as rsautil

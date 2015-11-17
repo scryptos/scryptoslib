@@ -9,14 +9,14 @@ def check():
     return False
   return True
 
-def fplll(m, mode):
+def fplll(m, mode, external_options=[]):
   assert all([len(x) == len(m) for x in m])
   assert check()
   s = "["
   for x in m:
     s += "[" + " ".join(["%d"%y for y in x]) + "]"
   s += "]"
-  p = Popen(["fplll", "-r", "%d"%len(m), "-c", "%d"%len(m[0]), "-a", mode], stdin=PIPE, stdout=PIPE)
+  p = Popen(["fplll", "-r", "%d"%len(m), "-c", "%d"%len(m[0]), "-a", mode] + external_options, stdin=PIPE, stdout=PIPE)
   d, _ = p.communicate(s)
   return eval(d.replace("\n", ",").replace(" ", ",")[:-1])
 
@@ -24,5 +24,5 @@ def lll(m):
   return fplll(m, "lll")
 def svp(m):
   return fplll(m, "svp")
-def bkz(m):
-  return fplll(m, "bkz")
+def bkz(m, block_size):
+  return fplll(m, "bkz", ["-b", str(block_size)])

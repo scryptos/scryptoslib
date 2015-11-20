@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import unittest
-from scryptos.crypto import *
-from scryptos.util import hexutil, tables
-from scryptos.misc import xorsearch, diffsearch
+from scryptos import *
 
 class RabinTest(unittest.TestCase):
 

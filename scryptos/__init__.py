@@ -2,10 +2,10 @@
 scryptos
 """
 
-import scryptos
-from . import math
-from . import misc
-from . import wrapper
+from math import *
+from crypto import *
+from misc import *
+from wrapper import *
 from util import *
 
 

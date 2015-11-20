@@ -1,14 +1,7 @@
-from scryptos.util.hexutil import *
 from scryptos.util.tables import *
+from scryptos.misc.stringutils import xorstr
 from itertools import product
 
-def xorstr(s, key):
-  out = ""
-  if type(key) is int:
-    key = hex(key, 2)[2:].decode("hex")
-  for x in xrange(len(s)):
-    out += chr(ord(s[x]) ^ ord(key[x % len(key)]))
-  return out
 def XORSearch(ciphertext, crib=None, mxlen=4, mslen=1, table=all_table, silent=False):
   key = ""
   candidate = []

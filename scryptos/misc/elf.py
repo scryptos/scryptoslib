@@ -41,15 +41,16 @@ class ELF:
 
     data = s.data[s.ehdr.e_shdrpos:]
     s.shdrs = [SHDR(data[x*s.ehdr.e_shdrent:(x+1)*s.ehdr.e_shdrent]) for x in xrange(s.ehdr.e_shdrcnt)]
-    symtab = s._section(".symtab")
-    strtab = s._section(".strtab")
-    s.symbols = []
-    if not symtab == None and not strtab == None:
-      d = s.data[symtab.sh_offset:symtab.sh_offset + symtab.sh_size]
-      strtab = s.data[strtab.sh_offset:strtab.sh_offset + strtab.sh_size]
-      while len(d) > 0:
-        s.symbols += [SymTab(d[:16], strtab)]
-        d = d[len(s.symbols[0]):]
+    if s.ehdr.e_shdrcnt > 0:
+      symtab = s._section(".symtab")
+      strtab = s._section(".strtab")
+      s.symbols = []
+      if not symtab == None and not strtab == None:
+        d = s.data[symtab.sh_offset:symtab.sh_offset + symtab.sh_size]
+        strtab = s.data[strtab.sh_offset:strtab.sh_offset + strtab.sh_size]
+        while len(d) > 0:
+          s.symbols += [SymTab(d[:16], strtab)]
+          d = d[len(s.symbols[0]):]
 
   def set_base(s, base):
     s.base = base

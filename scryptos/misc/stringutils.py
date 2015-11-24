@@ -1,4 +1,4 @@
-from scryptos import *
+from scryptos.util.hexutil import hex
 
 class StreamReader:
   def __init__(s, x):
@@ -16,6 +16,12 @@ class StreamReader:
     assert 0 <= pos < len(s.str)
     s.pos = pos
 
+  def len(s):
+    return len(s.str)
+
+  def __len__(s):
+    return s.len()
+
 def xorstr(s, key):
   out = ""
   if type(key) is int:
@@ -26,8 +32,6 @@ def xorstr(s, key):
 
 def mapstr(s, t, func):
   out = ""
-  if type(key) is int:
-    key = hex(key, 2)[2:].decode("hex")
   for x in xrange(len(s)):
     out += chr(func(ord(s[x]), ord(key[x % len(key)])))
   return out

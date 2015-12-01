@@ -1,4 +1,5 @@
 from scryptos.wrapper import lll
+from scryptos.math.arithmetic import modinv
 
 def create_matrix_from_knapsack(ciphertext, pubkeys, modulo):
   mat = []
@@ -14,6 +15,8 @@ def Decrypt_Knapsack_With_Modulo(c, pub, modulo):
   # find shortest vector(a.k.a. plaintext)
   for x in ml:
     if x[-1] == 0:
-      return x
+      if x[-2] != -1:
+        return [y * modinv(x[-2] % modulo, modulo) % modulo for y in x[:-2]]
+      return x[:-2]
   return None
 

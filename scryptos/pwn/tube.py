@@ -34,6 +34,7 @@ class Tube:
 
   def read(s, l=-1):
     if s.t == "POPEN":
+      select.select([s.p.stdout], [], [])
       try: 
         s.flush()
         r = s.p.stdout.read(l)
@@ -41,6 +42,7 @@ class Tube:
       except IOError:
         return ""
     elif s.t == "SOCKET":
+      select.select([s.p], [], [])
       try:
         if l == -1:
           l = 16777216
@@ -49,21 +51,21 @@ class Tube:
         return ""
 
   def read_until(s, crib):
-    if s.t == "POPEN":
-      r = ""
-      while True:
-        r += s.read(1)
-        if crib in r:
-          return r
+    r = s.read(len(crib))
+    while not r.endswith(crib):
+      r += s.read(1)
+    return r
 
   def readline(s):
     return s.read_until("\n")
 
   def write(s, x):
     if s.t == "POPEN":
+      select.select([], [s.p.stdin], [])
       s.p.stdin.write(x)
       s.flush()
     elif s.t == "SOCK":
+      select.select([], [s.p], [])
       s.p.sendall(x)
 
   def writeline(s, x):

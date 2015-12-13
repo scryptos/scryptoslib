@@ -16,11 +16,17 @@ class EHDR:
     elif s.e_class == 2:
       return 64
 
-class PHDR:
+class PHDR32:
   def __init__(s, d):
     (s.p_type, s.p_offset, s.p_vaddr, s.p_paddr, s.p_filesz, s.p_memsz, s.p_flags, s.p_align) = struct.unpack("<8I", d[:32])
   def __len__(s):
     return 32
+
+class PHDR64:
+  def __init__(s, d):
+    (s.p_type, s.p_offset, s.p_vaddr, s.p_paddr, s.p_filesz, s.p_memsz, s.p_flags, s.p_align) = struct.unpack("<2I6Q", d[:56])
+  def __len__(s):
+    return 56
 
 class SHDR32:
   def __init__(s, d):
@@ -41,9 +47,7 @@ class SymTab32:
     s.sym_type = typebind & 0xFF00 >> 8
     s.sym_bizsnd = typebind & 0xFF
     if not strtab == None:
-      s.name = strtab[s.sym_name+1:]
-      s.name = s.name[:s.name.index("\0")]
-      s.name = re.match("(.+)(@.+)?", s.name).group(1)
+      s.name = strtab[s.sym_name:].split("\0")[0].split("@")[0]
   def __len__(s):
     return 16
 
@@ -54,9 +58,7 @@ class SymTab64:
     s.sym_type = typebind & 0xFF00 >> 8
     s.sym_bizsnd = typebind & 0xFF
     if not strtab == None:
-      s.name = strtab[s.sym_name+1:]
-      s.name = s.name[:s.name.index("\0")]
-      s.name = re.match("(.+)(@.+)?", s.name).group(1)
+      s.name = strtab[s.sym_name:].split("\0")[0].split("@")[0]
   def __len__(s):
     return 24
 
@@ -66,7 +68,10 @@ class ELF:
     s.data = open(f, "rb").read()
     s.ehdr = EHDR(s.data)
     data = s.data[s.ehdr.e_phdrpos:]
-    s.phdrs = [PHDR(data[x*s.ehdr.e_phdrent:(x+1)*s.ehdr.e_phdrent]) for x in xrange(s.ehdr.e_phdrcnt)]
+    if s.ehdr.e_class == 1:
+      s.phdrs = [PHDR32(data[x*s.ehdr.e_phdrent:(x+1)*s.ehdr.e_phdrent]) for x in xrange(s.ehdr.e_phdrcnt)]
+    elif s.ehdr.e_class == 2:
+      s.phdrs = [PHDR64(data[x*s.ehdr.e_phdrent:(x+1)*s.ehdr.e_phdrent]) for x in xrange(s.ehdr.e_phdrcnt)]
 
     data = s.data[s.ehdr.e_shdrpos:]
     if s.ehdr.e_class == 1:
@@ -86,6 +91,20 @@ class ELF:
           elif s.ehdr.e_class == 2:
             s.symbols += [SymTab64(d[:24], strtab)]
           d = d[len(s.symbols[0]):]
+    if s._section(".dynamic") is not None:
+      symtab = s._section(".dynsym")
+      strtab = s._section(".dynstr")
+      s.symbols = []
+      if not symtab == None and not strtab == None:
+        d = s.data[symtab.sh_offset:symtab.sh_offset + symtab.sh_size]
+        strtab = s.data[strtab.sh_offset:strtab.sh_offset + strtab.sh_size]
+        while len(d) > 0:
+          if s.ehdr.e_class == 1:
+            s.symbols += [SymTab32(d[:16], strtab)]
+          elif s.ehdr.e_class == 2:
+            s.symbols += [SymTab64(d[:24], strtab)]
+          d = d[len(s.symbols[0]):]
+
 
   def set_base(s, base):
     s.base = base
@@ -95,7 +114,6 @@ class ELF:
 
   def _section(s, name):
     shstrtab = s.shdrs[s.ehdr.e_strsec]
-    print repr(s.data[shstrtab.sh_offset:][:shstrtab.sh_size])
     if name in s.data[shstrtab.sh_offset:][:shstrtab.sh_size]:
       idx = s.data[shstrtab.sh_offset:][:shstrtab.sh_size].index(name)
       for x in s.shdrs:

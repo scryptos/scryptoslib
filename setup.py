@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-version = '1.2'
+version = '1.3'
 
-install_requires     = []
+install_requires     = ["pycrypto", "gmpy"]
 
 setup(
     name                 = 'scryptoslib',

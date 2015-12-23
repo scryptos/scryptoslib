@@ -26,7 +26,7 @@ class Tube:
     def run_server(s, e, argv):
       c, _ = s.proc_sock.accept()
       s.proc_sock.close()
-      p = Popen(argv, stdin=c, stdout=c, stderr=c)
+      p = Popen(argv, stdin=c, stdout=c, stderr=STDOUT)
       print "\x1b[0;32m[+] Start Process: %s args: %s PID=%d\x1b[0m" % (args[0], repr(args), p.pid)
       if s.debug:
         raw_input("\x1b[0;32mPlease enter key to continue...\x1b[0m")

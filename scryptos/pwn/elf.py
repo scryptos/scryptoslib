@@ -194,3 +194,13 @@ class ELF:
       if s.dynsym[x.r_symbol].name == name:
         return x.r_offset
     raise("GOT '%s' Not Found." % name)
+
+  def plt(s, name):
+    offset = (s.got(name) - s.section(".got"))
+    if s.ehdr.e_class == 2:
+      offset /= 8
+      diff = (0x10, 0x10)
+    else:
+      offset /= 4
+      diff = (0x10, 0x10)
+    return diff[1] + s.section(".plt") + diff[0] * (offset-4)

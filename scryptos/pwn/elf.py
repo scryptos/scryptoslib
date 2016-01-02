@@ -47,7 +47,7 @@ class SymTab32:
     s.sym_type = typebind & 0xFF00 >> 8
     s.sym_bizsnd = typebind & 0xFF
     if not strtab == None:
-      s.name = strtab[s.sym_name:].split("\0")[0].split("@")[0]
+      s.name = strtab[s.sym_name:].split("\0")[0]
   def __len__(s):
     return 16
 
@@ -58,7 +58,37 @@ class SymTab64:
     s.sym_type = typebind & 0xFF00 >> 8
     s.sym_bizsnd = typebind & 0xFF
     if not strtab == None:
-      s.name = strtab[s.sym_name:].split("\0")[0].split("@")[0]
+      s.name = strtab[s.sym_name:].split("\0")[0]
+  def __len__(s):
+    return 24
+
+class Rel32:
+  def __init__(s,  d):
+    (s.r_offset, s.r_info) = struct.unpack("<II", d)
+    s.r_symbol = s.r_info >> 8
+    s.r_type = s.r_info & 255
+  def __len__(s):
+    return 8
+class Rel64:
+  def __init__(s, d):
+    (s.r_offset, s.r_info) = struct.unpack("<QQ", d)
+    s.r_symbol = s.r_info >> 32
+    s.r_type = s.r_info & 0xffffffff
+  def __len__(s):
+    return 16
+
+class Rela32:
+  def __init__(s,  d):
+    (s.r_offset, s.r_info, s.r_addend) = struct.unpack("<IIi", d)
+    s.r_symbol = s.r_info >> 8
+    s.r_type = s.r_info & 255
+  def __len__(s):
+    return 12
+class Rela64:
+  def __init__(s, d):
+    (s.r_offset, s.r_info, s.r_addend) = struct.unpack("<QQq", d)
+    s.r_symbol = s.r_info >> 32
+    s.r_type = s.r_info & 0xffffffff
   def __len__(s):
     return 24
 
@@ -94,17 +124,40 @@ class ELF:
     if s._section(".dynamic") is not None:
       symtab = s._section(".dynsym")
       strtab = s._section(".dynstr")
-      s.symbols = []
+      s.dynsym = []
       if not symtab == None and not strtab == None:
         d = s.data[symtab.sh_offset:symtab.sh_offset + symtab.sh_size]
         strtab = s.data[strtab.sh_offset:strtab.sh_offset + strtab.sh_size]
         while len(d) > 0:
           if s.ehdr.e_class == 1:
-            s.symbols += [SymTab32(d[:16], strtab)]
+            s.dynsym += [SymTab32(d[:16], strtab)]
           elif s.ehdr.e_class == 2:
-            s.symbols += [SymTab64(d[:24], strtab)]
-          d = d[len(s.symbols[0]):]
-
+            s.dynsym += [SymTab64(d[:24], strtab)]
+          d = d[len(s.dynsym[0]):]
+    rel = s._section(".rel.dyn")
+    rel_ent = []
+    if rel == None:
+      rel = s._section(".rela.plt")
+      d = s.data[rel.sh_offset:][:rel.sh_size]
+      if s.ehdr.e_class == 2:
+        while len(d) > 0:
+          rel_ent += [Rela64(d[:24])]
+          d = d[24:]
+      else:
+        while len(d) > 0:
+          rel_ent += [Rela32(d[:12])]
+          d = d[12:]
+    else:
+      d = s.data[rel.sh_offset:][:rel.sh_size]
+      if s.ehdr.e_class == 2:
+        while len(d) > 0:
+          rel_ent += [Rel64(d[:16])]
+          d = d[16:]
+      else:
+        while len(d) > 0:
+          rel_ent += [Rel32(d[:8])]
+          d = d[8:]
+    s.relocation = rel_ent
 
   def set_base(s, base):
     s.base = base
@@ -124,8 +177,20 @@ class ELF:
     for x in s.symbols:
       if x.name == name:
         return x.sym_value + s.base
+    for x in s.dynsym:
+      if x.name == name:
+        return x.sym_value + s.base
 
   def resolve_name(s, address):
     for x in s.symbols:
       if x.sym_value + s.base <= address < x.sym_value + x.sym_size + s.base:
         return x.name
+    for x in s.dynsym:
+      if x.sym_value + s.base <= address < x.sym_value + x.sym_size + s.base:
+        return x.name
+
+  def got(s, name):
+    for x in s.relocation:
+      if s.dynsym[x.r_symbol].name == name:
+        return x.r_offset
+    raise("GOT '%s' Not Found." % name)

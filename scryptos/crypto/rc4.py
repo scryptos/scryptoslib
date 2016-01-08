@@ -1,4 +1,4 @@
-from scryptos import *
+from scryptos.misc.stringutils import xorstr
 
 class RC4:
   def __init__(s, k=None, state=None):

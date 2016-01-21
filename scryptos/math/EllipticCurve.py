@@ -35,7 +35,7 @@ class EllipticCurve:
     return ECPoint(s, Rx, Ry)
 
   def Negate(s, P):
-    if s.infinity(): return ECPoint(s, 0, 0)
+    if P.infinity(): return ECPoint(s, 0, 0)
     else: return ECPoint(s, P.x, -P.y)
 
   def __repr__(s):
@@ -66,7 +66,7 @@ class EdwardsCurve:
     return ECPoint(s, Rx, Ry)
 
   def Negate(s, P):
-    if s.infinity(): return ECPoint(s, 0, 0)
+    if P.infinity(): return ECPoint(s, 0, 0)
     else: return ECPoint(s, P.x, -P.y)
 
   def __repr__(s):
@@ -128,4 +128,4 @@ class ECPoint:
     return s.__mul__(n)
 
   def __repr__(s):
-    return "ECPoint(%s, %s) on %s" % (s.x.v, s.y.v, s.c)
+    return "ECPoint(%s, %s)" % (s.x.v, s.y.v)

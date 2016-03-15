@@ -5,10 +5,9 @@ class Ceaser:
     s.table = table
 
   def encrypt(s, m):
-    t = s.table
-    c = map(chr, map(lambda x:table[(ord(x) - ord(t[0]) + s.k) % len(t)], m))
+    c = map(chr, map(lambda x:s.table[(ord(x) - ord(t[0]) + s.k) % len(t)], m))
     t = t.upper()
-    c = map(chr, map(lambda x:table[(ord(x) - ord(t[0]) + s.k) % len(t)], m))
+    c = map(chr, map(lambda x:s.table[(ord(x) - ord(t[0]) + s.k) % len(t)], m))
     return c
 
   def decrypt(s, c):

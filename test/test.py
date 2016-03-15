@@ -47,7 +47,7 @@ class RSATest(unittest.TestCase):
         c1 = rsa.encrypt(m)
         c2 = rsa.encrypt(a*m+b)
 
-        m0 = rsautil.franklin_raiter([rsa, rsa], a, b, [c1, c2])
+        m0 = rsautil.franklin_raiter(rsa, a, b, [c1, c2])
         print m0
         self.assertTrue(m0 == 123456)
 

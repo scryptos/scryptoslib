@@ -9,6 +9,14 @@ u64   = lambda x: struct.unpack("<Q", x)[0]
 u32   = lambda x: struct.unpack("<I", x)[0]
 u16   = lambda x: struct.unpack("<H", x)[0]
 u8    = lambda x: struct.unpack("<B", x)[0]
+pb64   = lambda x: struct.pack(">Q", x)
+pb32   = lambda x: struct.pack(">I", x)
+pb16   = lambda x: struct.pack(">H", x)
+pb8    = lambda x: struct.pack(">B", x)
+ub64   = lambda x: struct.unpack(">Q", x)[0]
+ub32   = lambda x: struct.unpack(">I", x)[0]
+ub16   = lambda x: struct.unpack(">H", x)[0]
+ub8    = lambda x: struct.unpack(">B", x)[0]
 
 
 def hex(x, align=1):

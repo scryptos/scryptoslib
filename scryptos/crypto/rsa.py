@@ -144,7 +144,7 @@ class RSA:
     return "RSA %s Key(e=%d, n=%d%s)" % (s.has_private()and"Private"or"Public", s.e, s.n, ", p=%d, q=%d, d=%d" % (s.p, s.q, s.d) if s.has_private() else "")
 
   def __repr__(s):
-    ret = RSA.__class__.__name__
+    ret = s.__class__.__name__
     ret += "(%d, %d" % (s.e, s.n)
     if s.has_private():
       ret += ", p = %d, q = %d, d = %d" % (s.p, s.q, s.d)

@@ -33,5 +33,22 @@ def xorstr(s, key):
 def mapstr(s, t, func):
   out = ""
   for x in xrange(len(s)):
-    out += chr(func(ord(s[x]), ord(key[x % len(key)])))
+    out += chr(func(s[x]), x)
   return out
+
+def transpose(s):
+  return "".join(map(lambda x: "".join(x), zip(*s)))
+
+def nth_split(s, n):
+  r = []
+  i = 0
+  while True:
+    if i + n > len(s):
+      r += [s[i:]]
+      break
+    r += [s[i:i+n]]
+    i += n
+  if r[-1] == "":
+    r = r[:-1]
+  return r
+

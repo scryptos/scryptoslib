@@ -1,17 +1,12 @@
 from subprocess import Popen, PIPE
-import os
+from .common import check
 import sys
-
-def check():
-  if not any(map(lambda x:os.path.exists(x+"/fplll"), (os.environ["PATH"].split(":")))):
-    sys.stderr.write("Error: fplll not found.\n")
-    sys.stderr.write("Please install from https://github.com/dstehle/fplll\n")
-    return False
-  return True
 
 def fplll(m, mode, external_options=[]):
   assert all([len(x) == len(m) for x in m])
-  assert check()
+  if not check("fplll"):
+    sys.stderr.write("Please install from https://github.com/dstehle/fplll\n")
+    assert False
   s = "["
   for x in m:
     s += "[" + " ".join(["%d"%y for y in x]) + "]"

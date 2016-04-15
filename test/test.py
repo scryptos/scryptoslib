@@ -72,17 +72,11 @@ class RSATest(unittest.TestCase):
       self.assertTrue(rsautil.high_bit_known(rsa, qbar, "pq") == (p, q))
 
 class HexUtilTest(unittest.TestCase):
-
     def test_hex(self):
         t = hexutil.hex(127)
         self.assertTrue(t == "0x7f")
         t = hexutil.hex(127, 4)
         self.assertTrue(t == "0x007f")
-
-        t = hexutil.unhex("10203040")
-        self.assertTrue(t == 0x10203040)
-        t = hexutil.unhex("de ad beef")
-        self.assertTrue(t == 0xdeadbeef)
 
     def test_pack(self):
       t = hexutil.p64(0xcafebabedeadbeef)
@@ -118,29 +112,12 @@ class HexUtilTest(unittest.TestCase):
       print repr(t)
       self.assertTrue(t == 0x7f)
 
-    def test_bswap(self):
-      t = hexutil.bswap("\xde\xad\xbe\xef")
-      self.assertTrue(t == "\xef\xbe\xad\xde")
-
-class SearcherTest(unittest.TestCase):
-  def test_xor(s):
-    t = xorsearch.XORSearch("g\x19\x1e\x1c", "%PDF", mxlen=4, mslen=4, table=tables.upper_table, silent=True)
-    s.assertTrue(t == [("BIZZ", "%PDF")])
-
-  def test_diff(s):
-    t = diffsearch.DiffSearch([-57, -2, -7], "PNG", silent=True)
-    s.assertTrue(t == ["\x89PNG"])
-
-class AffineTest(unittest.TestCase):
-  def test_affine(s):
-    c = Affine(-1, -1)
-    s.assertTrue(c.encrypt("WEARESCRYPTOS") == "DVZIVHXIBKGLH")
-    s.assertTrue(c.decrypt("DVZIVHXIBKGLH") == "WEARESCRYPTOS")
 class VigenereTest(unittest.TestCase):
   def test_vigenere(s):
     c = Vigenere("CTF")
     s.assertTrue(c.encrypt("WEARESCRYPTOS") == "YXFTXXEKDRMTU")
     s.assertTrue(c.decrypt("YXFTXXEKDRMTU") == "WEARESCRYPTOS")
+
 class ScytaleTest(unittest.TestCase):
   def test_scytale(s):
     c = Scytale(3)

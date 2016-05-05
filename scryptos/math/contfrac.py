@@ -1,4 +1,3 @@
-
 def rational_to_contfrac (x, y):
     a = x//y
     if a * y == x:
@@ -10,7 +9,7 @@ def rational_to_contfrac (x, y):
 
 def convergents_from_contfrac(frac):    
     convs = [];
-    for i in range(len(frac)):
+    for i in xrange(len(frac)):
         convs.append(contfrac_to_rational(frac[0:i]))
     return convs
 

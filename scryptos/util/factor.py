@@ -73,4 +73,3 @@ def rsa_d(rsa, d):
         p = y
         q = rsa.n / y
         return (max(p, q), min(p, q))
-

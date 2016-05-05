@@ -159,6 +159,8 @@ class RSA:
       d = RSA_pycrypto.construct((s.n, s.e, s.d, s.p, s.q))
     elif hasattr(s, "d"):
       d = RSA_pycrypto.construct((s.n, s.e, s.d))
+    else:
+      d = RSA_pycrypto.construct((s.n, s.e))
     return d.exportKey()
 
   @staticmethod
@@ -169,7 +171,6 @@ class RSA:
     pem_string : pem as string
     """
     rsa = RSA_pycrypto.importKey(pem_string)
-    print "[+] Successfully Load File: %s" % fname
     if rsa.has_private():
       print "[+] This is Private Key"
       print "[+] p = %d\n[+] q = %d\n[+] d = %d\n" % (rsa.p, rsa.q, rsa.d)
@@ -202,12 +203,7 @@ def bitlength(x):
 
   return log2(x)
   """
-  assert x >= 0
-  n = 0
-  while x > 0:
-      n = n+1
-      x = x>>1
-  return n
+  return x.bit_length()
 
 def totient(*args):
   """

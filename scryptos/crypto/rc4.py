@@ -41,5 +41,6 @@ class RC4:
 
 
 if __name__ == "__main__":
+  # ksnctf
   rc4 = RC4("M6eMYngDGFbYE9HQ")
   print rc4.decrypt('\xbf\xff\x1b\rG\xa7\x18O\xcb\xd6\\Y\x95asW\xb3\xd1\x94\x9f\xac') == 'FLAG_MEyR4Zf4A4HFW73k'

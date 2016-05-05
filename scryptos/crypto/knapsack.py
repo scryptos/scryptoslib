@@ -2,6 +2,9 @@ from scryptos.wrapper import lll
 from scryptos.math.arithmetic import modinv
 
 def Decrypt_Merkle_Hellman_Knapsack(c, pub):
+  """
+  Breaking Merkle-Hellman Knapsack Cipher: Low-Density Lattice Attack
+  """
   mat = []
   for x in xrange(len(pub)):
     mat += [[0] * x + [2] + [0] * (len(pub)-x-1) + [pub[x]]]
@@ -21,6 +24,9 @@ def Decrypt_Merkle_Hellman_Knapsack(c, pub):
   return None
 
 def Decrypt_Knapsack_With_Modulo(c, pub, modulo):
+  """
+  Breaking Knapsack Cipher with Modulus: Low-Density Lattice Attack
+  """
   mat = []
   pubkeys = pub + [c]
   for x in xrange(len(pub)):

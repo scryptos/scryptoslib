@@ -1,17 +1,19 @@
-
 def gcd(x,y):
-  while y: x,y = y,(x%y)
-  return x
+  import fractions
+  return fractions.gcd(x, y)
 
 def egcd(a, b):
-    if a == 0:
-      return (b, 0, 1)
-    else:
-      g, y, x = egcd(b % a, a)
-      return (g, x - (b // a) * y, y)
+  x, y, u, v = 0, 1, 1, 0
+  while a != 0:
+    q, r = b // a, b % a
+    m, n = x - u * q, y - v * q
+    b, a, x, y, u, v = a, r, u, v, m, n
+  gcd = b
+  return gcd, x, y
 
 def lcm(x,y):
-  return (x*y)/gcd(x,y)
+  import gmpy
+  return gmpy.lcm(x, y)
 
 def modinv(a, m):
     g, x, y = egcd(a, m)
@@ -31,20 +33,26 @@ def chinese_remainder_theorem(items):
     result += a*s*m
   return result % N
 
+def generalized_crt(ak, nk):
+  """
+  ak : Parameter, [a1, a2, ..., ak]
+  nk : Parameter, [n1, n2, ..., nk]
+  should be len(ak) == len(nk)
+  """
+  assert len(ak) == len(nk)
+  N = reduce(lambda x, y: x * y, nk, 1)
+  l = lcm(nk)
+  s = 0
+  for n, a in zip(nk, ak):
+    m = N / n
+    g, x, y = egcd(m, n)
+    s += (m / g) * x * a
+    s %= l
+  return s
+
 def nth_root(x,n):
-    high = 1
-    while high ** n < x:
-        high *= 2
-    low = high/2
-    while low < high:
-        mid = (low + high) // 2
-        if low < mid and mid**n < x:
-            low = mid
-        elif high > mid and mid**n > x:
-            high = mid
-        else:
-            return mid
-    return mid + 1
+  import gmpy
+  return int(gmpy.root(x, n)[0])
 
 def isqrt(n):
   return nth_root(n, 2)

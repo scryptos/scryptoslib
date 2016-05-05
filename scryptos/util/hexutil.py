@@ -29,3 +29,6 @@ def long_to_bytes(x):
 
 def bytes_to_long(x):
   return int(x.encode("hex"), 16)
+
+def crc32(x):
+  return (binascii.crc32(x) % (1<<32))

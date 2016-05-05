@@ -1,5 +1,3 @@
-from scryptos.math.arithmetic import modinv
-
 class Elgamal:
   def __init__(s, **kwargs):
     if "x" in kwargs.keys():
@@ -20,6 +18,7 @@ class Elgamal:
     return [c1, c2]
 
   def decrypt(s, c):
+    from scryptos.math.arithmetic import modinv
     assert len(c) == 2
     assert s.has_private()
     c1, c2 = c

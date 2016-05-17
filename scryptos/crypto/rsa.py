@@ -313,8 +313,6 @@ def wiener(rsa):
   =======================================
   If d < 1/3 * N^(1/4), get d from (e, N).
   """
-  import sys
-  sys.setrecursionlimit(65537)
   e = rsa.e
   n = rsa.n
   frac = contfrac.rational_to_contfrac(e, n)

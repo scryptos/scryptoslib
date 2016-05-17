@@ -2,7 +2,7 @@ from scryptos.wrapper import *
 import math
 
 def coppersmith_howgrave_method(polynomial, N, beta=1, eps=0.05):
-  d = eval(parigp(["n = %d" % N, "pol = %s" % polynomial, "beta =around(n^%s)" % str(beta), "X = round(n ^ (1.0/4 - %s))" % str(eps), "zncoppersmith(pol, n, X, beta)"]))
+  d = eval(parigp(["n = %d" % N, "pol = %s" % polynomial, "beta = round(n^%s)" % str(beta), "X = round(n ^ (1.0/4 - %s))" % str(eps), "zncoppersmith(pol, n, X, beta)"]))
   return d
 
 if __name__ == "__main__":

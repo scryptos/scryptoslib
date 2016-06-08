@@ -4,6 +4,7 @@ from Crypto.Random import random
 from scryptos.math import arithmetic, contfrac, coppersmith_howgrave
 from scryptos.wrapper import *
 from scryptos.util    import factor, hexutil
+import hashlib
 
 class RSA:
   """
@@ -181,6 +182,22 @@ class RSA:
       return RSA(rsa.e, rsa.n, p=rsa.p, q=rsa.q, d=rsa.d)
     else:
       return RSA(rsa.e, rsa.n)
+
+HASH_ASN1 = {
+    "MD5": "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10",
+    "SHA-1": "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14",
+    "SHA-256": "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20",
+    "SHA-384": "\x30\x41\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x02\x05\x00\x04\x30",
+    "SHA-512": "\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40",
+}
+
+HASH_METHODS = {
+    "MD5": hashlib.md5,
+    "SHA-1": hashlib.sha1,
+    "SHA-256": hashlib.sha256,
+    "SHA-384": hashlib.sha384,
+    "SHA-512": hashlib.sha512,
+}
 
 def gen_d(e, p, q):
   """
@@ -383,3 +400,34 @@ def high_bit_known(rsa, qbar, out="RSA"):
   elif out == "pq":
     p, q = (rsa.n/q, q)
     return min(p, q), max(p, q)
+
+def bleichenbachers_signature_forgery_with_e_3(rsa, target, hash):
+  """
+  Breaking RSA: Bleichenbacher's Signature Forgery Attack with e=3
+
+  rsa: RSA Object
+  target: Target String(ex, "flag")
+  hash: hashlib instance(ex, HASH_METHODS["SHA-256"])
+  """
+  assert rsa.e == 3
+  import os
+  def get_bit(n, b):
+      return ((1 << b) & n) >> b
+  def set_bit(n, b, x):
+      if x == 0: return ~(1 << b) & n
+      if x == 1: return (1 << b) | n
+
+  src = hash(target)
+  ASN1_blob = HASH_ASN1["SHA-256"]
+  suffix = "\x00" + ASN1_blob + src.digest()
+  sig_suffix = 1
+  for b in range(len(suffix)*8):
+      if get_bit(sig_suffix ** 3, b) != get_bit(hexutil.bytes_to_long(suffix), b):
+          sig_suffix = set_bit(sig_suffix, b, 1)
+  while True:
+      prefix = "\x00\x01" + os.urandom(rsa.n.bit_length()//8 - 2)
+      sig_prefix = hexutil.long_to_bytes(arithmetic.nth_root(hexutil.bytes_to_long(prefix), 3))[:-len(suffix)] + "\x00" * len(suffix)
+      sig = sig_prefix[:-len(suffix)] + hexutil.long_to_bytes(sig_suffix)
+      if "\x00" not in hexutil.long_to_bytes(hexutil.bytes_to_long(sig) ** 3)[:-len(suffix)]:
+        break
+  return hexutil.bytes_to_long(sig)

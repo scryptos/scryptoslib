@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-version = '1.4.3'
+version = '1.4.4'
 
 install_requires     = ["pycrypto", "gmpy"]
 

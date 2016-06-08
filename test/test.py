@@ -71,6 +71,18 @@ class RSATest(unittest.TestCase):
       rsa = RSA(e=e, n=n)
       self.assertTrue(rsautil.high_bit_known(rsa, qbar, "pq") == (p, q))
 
+    def test_bleichenbachers_signature_forgery(self):
+      n = 0x6a7ce66be5565243fc6e989d6ef30d7db24ecf6d66137f84e22a94ee8590b5ad7e38a775602608f8669af8ffb7956952b6de2eb2e214c80bff8354ad84ef8092b73106c8de79bfda495e2ce6b261774781a09387e5d3d20215cf25a1a1329645422981aa759f2f4cf1cde00372838ea7a236efae68d6f01cb711253c94a6e608b18ae8f601a2ca5fd703fb050e19a7c37099a2035b46a2004ff397aec5bb59cc3c30975d577b9788bdc127441f2aafc8fcdf6241840e9fa0077aa19119cdd7d1a095513c61ac11db97fbdedf0beec0922825c8be5b5bd0522b5cc2f3cb3caecc895a4fde74283134294bf57d92853387bd2af6f3a523625884e134cceb818da9L
+      e = 3L
+      rsa = RSA(e, n)
+      sig = rsautil.bleichenbachers_signature_forgery_with_e_3(rsa, "flag", rsautil.HASH_METHODS["SHA-256"])
+      print sig
+
+      print repr(long_to_bytes(rsa.encrypt(sig)))
+      print repr(rsautil.HASH_METHODS["SHA-256"]("flag").digest())
+      self.assertTrue(long_to_bytes(rsa.encrypt(sig)).endswith(rsautil.HASH_METHODS["SHA-256"]("flag").digest()))
+
+
 class HexUtilTest(unittest.TestCase):
     def test_hex(self):
         t = hexutil.hex(127)

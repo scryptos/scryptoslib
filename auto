@@ -1,0 +1,6 @@
+#!/bin/sh
+
+pip install --upgrade .
+python setup.py test
+rm -rf scryptoslib.egg-info/
+find . -name '*.pyc' | xargs rm

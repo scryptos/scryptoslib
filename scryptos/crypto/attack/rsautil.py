@@ -27,7 +27,7 @@ def common_private_exponent(rsa_list):
   Return: Private Exponent
   Reference: http://ijcsi.org/papers/IJCSI-9-2-1-311-314.pdf
   """
-  from scryptos.wrapper import lll
+  from scryptos.math import LLL
   import math
   import gmpy
   eset = map(lambda x: x.e, rsa_list)
@@ -38,7 +38,7 @@ def common_private_exponent(rsa_list):
   B += [[M] + eset]
   for x in xrange(r):
     B += [[0]*(x+1) + [-nset[x]] + [0] * (r-x-1)]
-  S = lll(B)
+  S = LLL(B)
   d = abs(S[0][0])/M
   return d
 
@@ -129,43 +129,17 @@ def modulus_fault_crt(rsa, fault_sigs, r=50):
   Return: Recovered RSA Private Key
   Reference : https://eprint.iacr.org/2011/388.pdf
   """
-  from scryptos.math import gcd, vector_add, vector_sub, vector_scalarmult, vector_norm_i
+  from scryptos.math import gcd, vector_add, vector_sub, vector_scalarmult, vector_norm_i, Orthogonal_Lattice
   from scryptos.crypto import RSA
   ITERATION_RANGE = xrange(-r, r+1)
   assert len(fault_sigs) >= 5
 
-  def lattice_orthogonal(vs):
-    """
-    From: `Merkle-Hellman Revisited: A Cryptanalysis of the Qu-Vanstone Cryptosystem Based on Group Factorizations` - Algorithm 5
-    Reference implementation: https://gist.github.com/hellman/350bed296fc66bcb128dcf7da014684e
-    """
-    from scryptos.math import vector_norm_i, vector_dot_product
-    from scryptos.wrapper import lll
-    n = len(vs[0])
-    d = len(vs)
-    c = 2**((n-1)/2 + (n-d)*(n-d-1)/4)
-    c = c * reduce(lambda x,y:x*vector_norm_i(y), vs, 1)
-    M = []
-    for i in xrange(n):
-      a = []
-      for j in xrange(d):
-        a += [c * vs[j][i]]
-      a += [0] * i + [1] + [0] * (n-i-1)
-      M += [a]
-    B = lll(M)
-    # perspective map
-    res = [r[-n:] for r in B]
-    res = res[:n-d]
-    for r in res:
-      assert all(vector_dot_product(r, v) == 0 for v in vs)
-    return res
-
   l = len(fault_sigs)
   # calculate v^\perp
-  B = lattice_orthogonal([fault_sigs])
+  B = Orthogonal_Lattice([fault_sigs])
   assert len(B) == l - 1
   # calculate L'^\perp
-  B2 = lattice_orthogonal(B[:l-2])
+  B2 = Orthogonal_Lattice(B[:l-2])
   assert len(B2) == 2
   # enumerate u, v
   x, y = B2

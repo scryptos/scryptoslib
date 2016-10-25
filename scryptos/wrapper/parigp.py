@@ -13,6 +13,7 @@ def parigp(cmd, isAll=False, debug=False):
   assert check("gp")
   if isinstance(cmd, str):
     cmd = [cmd]
+  cmd = PARI_LIB + cmd
   if memsize != None:
     cmd = ["allocatemem(%s)" % memsize] + cmd
   s = "\n".join(cmd)

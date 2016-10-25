@@ -6,12 +6,12 @@ def merkle_hellman_low_density_LO(c, pub):
     pub : Public key list
   Return: Plaintext
   """
-  from scryptos.wrapper import lll
+  from scryptos.math import LLL
   mat = []
   for x in xrange(len(pub)):
     mat += [[0] * x + [2] + [0] * (len(pub)-x-1) + [pub[x]]]
   mat += [[1] * (len(pub)) + [c]]
-  ml = lll(mat)
+  ml = LLL(mat)
   # find shortest vector(a.k.a. plaintext)
   for x in ml:
     if all([r == 0 or r == 1 or r == -1 for r in x]):
@@ -32,26 +32,37 @@ def merkle_hellman_low_density_CLOS(c, pub):
     pub : Public key list
   Return: Plaintext
   """
-  from scryptos.wrapper import lll
-  from scryptos.math import isqrt
+  from scryptos.math import isqrt, Rational_LLL, vector_norm_i
   n = len(pub)
   L = isqrt(n) + 1
   mat = []
   for x in xrange(n):
     mat += [[0] * x + [1] + [0] * (len(pub)-x-1) + [-L*pub[x]]]
-  #mat += [[-0.5] * (len(pub)) + [L*c]]
-  mat += [[-1] * (len(pub)) + [L*c]]
-  ml = lll(mat)
+
+  # -1/2
+  mat += [[(-1, 2)] * (len(pub)) + [L*c]]
+
+  # LLL
+  ml = Rational_LLL(mat)
+
+  # Convert Rational to Real
+  for i in xrange(len(ml)):
+    for j in xrange(len(ml[i])):
+      if isinstance(ml[i][j], tuple):
+        ml[i][j] = ml[i][j][0] * 1.0 / ml[i][j][1]
+
   # find shortest vector(a.k.a. plaintext)
+  # In CLOS Method, vector (x1 - 1/2, x2 - 1/2, ..., xn - 1/2, 0) belongs to Lattice `mat`
+  # that vector norm is very small. so, SVP of `mat` is that vector in high probability
   for x in ml:
     if x[-1] != 0:
       continue
-    x = x[:-1]
+    x = map(lambda x: int(x + 0.5), x[:-1])
     if all([r == 0 or r == 1 or r == -1 for r in x]):
       # found!
       ret = ""
       for y in x:
-        ret += str(y + 1)
+        ret += str(y)
       return int(ret, 2)
 
 def merkle_hellman_modulo(c, pub, modulo):
@@ -63,15 +74,14 @@ def merkle_hellman_modulo(c, pub, modulo):
     modulo : Modulo
   Return: Plaintext
   """
-  from scryptos.wrapper import lll
-  from scryptos.math import modinv
+  from scryptos.math import modinv, LLL
   import random
   mat = []
   pub = pub + [c]
   for x in xrange(len(pub)):
     mat += [[0] * x + [1] + [0] * (len(pub)-x-1) + [pub[x]]]
   mat += [[0] * (len(pub)) + [modulo]]
-  ml = lll(mat)
+  ml = LLL(mat)
   # find shortest vector(a.k.a. plaintext)
   for x in ml:
     if x[-1] == 0:

@@ -76,7 +76,7 @@ class TestRSA(unittest.TestCase):
     e = 255
     n = 100160063
     rsa = RSA(e, n)
-    m1 = int(gmpy.next_prime(random.randint(2, n)))
+    m1 = 86452943
     m2 = 7 * m1 + 3
     c1 = rsa.encrypt(m1)
     c2 = rsa.encrypt(m2)

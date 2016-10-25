@@ -12,5 +12,6 @@ def suite():
   suite.addTests(unittest.makeSuite(TestVector))
   suite.addTests(unittest.makeSuite(TestRSA))
   suite.addTests(unittest.makeSuite(TestKnapsack))
+  suite.addTests(unittest.makeSuite(TestLattice))
   return suite
 

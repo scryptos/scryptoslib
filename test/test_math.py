@@ -1,5 +1,5 @@
 import unittest
-from scryptos import num, contfrac, vector
+from scryptos import num, contfrac, vector, lattice
 
 class TestNum(unittest.TestCase):
   def setUp(s):
@@ -57,4 +57,18 @@ class TestVector(unittest.TestCase):
     s.assertEqual(vector.vector_scalarmult(2, u), [2, 12, 4, 6, 8])
     s.assertEqual(vector.vector_scalarmult(3, v), [6, 9, 12, 15, 21])
     s.assertEqual(vector.vector_norm_i(v), 10)
+
+class TestLattice(unittest.TestCase):
+  def setUp(s):
+    pass
+
+  def test_lattice(s):
+    from scryptos.wrapper.common import check
+    X = [[1, -1, 3], [1, 0, 5], [1, 2, 6]]
+    if check("gp"):
+      s.assertEqual(lattice.LLL(X, impl="parigp"), [[0, 1, -1], [1, 0, 0], [0, 1, 2]])
+    if check("fplll"):
+      s.assertEqual(lattice.LLL(X, impl="fplll"), [[1, -1, 0], [-1, 0, 1], [1, 1, 1]])
+    if check("gap"):
+      s.assertEqual(lattice.LLL(X, impl="gap"), [[1, -1, 0], [0, -1, 1], [1, 1, 1]])
 

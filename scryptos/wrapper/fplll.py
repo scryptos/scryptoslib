@@ -10,13 +10,13 @@ def fplll(m, mode, external_options=[]):
   for x in m:
     s += "[" + " ".join(["%d"%y for y in x]) + "]"
   s += "]"
-  p = Popen(["fplll", "-a", mode] + external_options, stdin=PIPE, stdout=PIPE)
+  p = Popen(["fplll", "-r", str(len(m)), "-c", str(len(m[0])), "-a", mode] + external_options, stdin=PIPE, stdout=PIPE)
   d, _ = p.communicate(s)
   return eval(d.replace("\n", ",").replace(" ", ",")[:-1])
 
-def lll(m):
+def fplll_lll(m):
   return fplll(m, "lll")
-def svp(m):
+def fplll_svp(m):
   return fplll(m, "svp")
-def bkz(m, block_size):
+def fplll_bkz(m, block_size):
   return fplll(m, "bkz", ["-b", str(block_size)])

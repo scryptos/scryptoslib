@@ -2,6 +2,7 @@ from test_util import *
 from test_math import *
 from test_rsa  import *
 from test_knapsack import *
+from test_mt19937 import *
 
 def suite():
   suite = unittest.TestSuite()
@@ -13,5 +14,6 @@ def suite():
   suite.addTests(unittest.makeSuite(TestRSA))
   suite.addTests(unittest.makeSuite(TestKnapsack))
   suite.addTests(unittest.makeSuite(TestLattice))
+  suite.addTests(unittest.makeSuite(TestMT19937))
   return suite
 

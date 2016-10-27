@@ -42,7 +42,7 @@ class TestContfrac(unittest.TestCase):
   def test_contfrac(s):
     s.assertEqual(contfrac.rational_to_contfrac(10007, 65537), [0, 6, 1, 1, 4, 1, 1, 2, 3, 1, 1, 1, 1, 2, 1, 2])
     s.assertEqual(contfrac.contfrac_to_rational([0, 6, 1, 1, 4, 1, 1, 2, 3, 1, 1, 1, 1, 2, 1, 2]), (10007, 65537))
-    s.assertEqual(contfrac.convergents_from_contfrac([0, 6, 1, 1, 4, 1, 1, 2, 3, 1, 1, 1, 1, 2, 1, 2]), [(0, 1), (0, 1), (1, 6), (1, 7), (2, 13), (9, 59), (11, 72), (20, 131), (51, 334), (173, 1133), (224, 1467), (397, 2600), (621, 4067), (1018, 6667), (2657, 17401), (3675, 24068)])
+    s.assertEqual(list(contfrac.convergents_from_contfrac([0, 6, 1, 1, 4, 1, 1, 2, 3, 1, 1, 1, 1, 2, 1, 2])), [(0, 1), (0, 1), (1, 6), (1, 7), (2, 13), (9, 59), (11, 72), (20, 131), (51, 334), (173, 1133), (224, 1467), (397, 2600), (621, 4067), (1018, 6667), (2657, 17401), (3675, 24068)])
 
 class TestVector(unittest.TestCase):
   def setUp(s):

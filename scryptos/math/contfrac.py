@@ -4,8 +4,7 @@ def rational_to_contfrac(x, y):
   Args:
     x: numerator
     y: denominator
-  Return:
-    x/y as Continued Fraction
+  Return: x/y as Continued Fraction
   """
   pquotients = []
   while x % y != 0:
@@ -17,16 +16,14 @@ def rational_to_contfrac(x, y):
 
 def convergents_from_contfrac(frac):    
   """
-  Calculate Convergents of a continued fraction
+  Generate Convergents of a continued fraction
   Args:
     frac: Continued Fraction List
-  Return:
-    All Convergents of a continued fraction
+  Yield: Convergents of a continued fraction
   """
-  convs = [];
   for i in xrange(len(frac)):
-      convs.append(contfrac_to_rational(frac[0:i]))
-  return convs
+      yield contfrac_to_rational(frac[0:i])
+  raise StopIteration()
 
 def contfrac_to_rational(frac):
   """

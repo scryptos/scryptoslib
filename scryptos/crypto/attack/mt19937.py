@@ -16,7 +16,7 @@ class mt19937(object):
     """
     Constructor of mt19937
     Args:
-      seed      : mt19937 seed
+      seed  : mt19937 seed
       state : mt19937 state
     """
     s.index = 0
@@ -76,7 +76,7 @@ class mt19937(object):
     Args:
       data  : Random State
       index : State Index
-    Return: Previousrandom
+    Return: Previous random
     """
     assert data is not None
     assert len(data) == cls.N

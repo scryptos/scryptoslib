@@ -1,3 +1,3 @@
 import rsautil
 import knapsackutil
-import mt19937
+import mtutil

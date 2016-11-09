@@ -92,10 +92,3 @@ def Orthogonal_Lattice(vs):
   for r in res:
     assert all(vector_dot_product(r, v) == 0 for v in vs)
   return res
-
-def Solve_UGSDA(ai):
-  """
-  Solve the Unusually good simultaneous diophantine approximation (UGSDA).
-  Args:
-
-  """

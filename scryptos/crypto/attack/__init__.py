@@ -1,3 +1,3 @@
 import rsautil
 import knapsackutil
-import mtutil
+import prngutil

@@ -1,4 +1,4 @@
-from scryptos.crypto.attack import mtutil
+from scryptos.crypto.attack import prngutil
 from scryptos.crypto import mt19937
 import random
 import unittest
@@ -21,7 +21,7 @@ class TestMT19937(unittest.TestCase):
     d = []
     for _ in xrange(624):
       d += [random.getrandbits(32)]
-    mt = mtutil.crack(d)
+    mt = prngutil.crack_mt19937(d)
     for x in xrange(624):
       s.assertEqual(mt.next(), d[x])
     for x in xrange(624):
@@ -30,3 +30,23 @@ class TestMT19937(unittest.TestCase):
       mt.prev()
     for x in d[::-1]:
       s.assertEqual(mt.prev(), x)
+
+class TestLCG(unittest.TestCase):
+  def setUp(s):
+    pass
+
+  def test_lcg(s):
+    M = 65537
+    A = 114
+    B = 514
+    x = 893
+
+    x = (A * x + B) % M
+    a = x
+
+    x = (A * x + B) % M
+    b = x
+
+    x = (A * x + B) % M
+    c = x
+    s.assertEqual(prngutil.crack_lcg(a, b, c, M), (A, B))

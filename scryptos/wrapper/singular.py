@@ -10,8 +10,8 @@ def singular(cmd, isAll=False, debug=False):
   if debug:
     print "[+] Throughout to Singular Commands: %r" % cmd
   tmpname = os.tempnam()
-  open(tmpname).write(s)
-  p = Popen(["Singular", "-bq", tempname], stdin=PIPE, stdout=PIPE)
+  open(tmpname, "w").write(s)
+  p = Popen(["Singular", "-bq", tmpname], stdin=PIPE, stdout=PIPE)
   d, _ = p.communicate()
   os.remove(tmpname)
   if isAll:

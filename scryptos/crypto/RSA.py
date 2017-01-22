@@ -1,4 +1,5 @@
 from scryptos.math.num import *
+from scryptos.util.hexutil import bytes_to_long, long_to_bytes
 from Crypto.Random import random
 from Crypto.PublicKey import RSA as pycrypto_RSA
 
@@ -83,6 +84,17 @@ class RSA(object):
     Return: RSA Decrypted integer (c^d mod n)
     """
     return pow(c, s.d, s.n)
+
+  def decrypt_PKCS15(s, c):
+    """
+    RSA Decryption with PKCS/1.5
+    Args:
+      c : Ciphertext (must be integer object)
+      Return: RSA Decrypted & PKCS/1.5 unpadded integer (c^d mod n)
+    """
+    m = long_to_bytes(s.decrypt(c))
+    assert m[0] == "\x02"
+    return bytes_to_long(m.split("\x00", 1)[1])
 
   def sign(s, m):
     """

@@ -72,7 +72,7 @@ def wiener(rsa):
   conv = convergents_from_contfrac(frac)
   for (k, d) in conv:
     if k != 0 and (e*d - 1) % k == 0:
-      phi = (e * d - 1) % k
+      phi = (e * d - 1) / k
       s = n - phi + 1
       disc = s**2 - 4*n
       if disc >= 0:

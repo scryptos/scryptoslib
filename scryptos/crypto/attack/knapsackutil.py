@@ -9,18 +9,18 @@ def merkle_hellman_low_density_LO(c, pub):
   from scryptos.math import LLL
   mat = []
   for x in xrange(len(pub)):
-    mat += [[0] * x + [2] + [0] * (len(pub)-x-1) + [pub[x]]]
-  mat += [[1] * (len(pub)) + [c]]
+    mat += [[0] * x + [1] + [0] * (len(pub)-x-1) + [pub[x]]]
+  mat += [[0] * (len(pub)) + [-c]]
   ml = LLL(mat)
   # find shortest vector(a.k.a. plaintext)
   for x in ml:
-    if all([r == 0 or r == 1 or r == -1 for r in x]):
+    if all([r == 0 or r == 1 for r in x[:len(pub)]]):
       # found!
       ret = ""
-      for y in x:
-        if y == 1:
+      for y in x[:len(pub)]:
+        if y == 0:
           ret += "0"
-        elif y == -1:
+        elif y == 1:
           ret += "1"
       return int(ret, 2)
 

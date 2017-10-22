@@ -117,3 +117,14 @@ class TestRSA(unittest.TestCase):
     rsa2 = rsautil.modulus_fault_crt(rsa, fault_sigs)
     s.assertEqual(max(rsa2.p, rsa2.q), 14741565978953596877)
 
+
+  def test_ciphertext_homomorphism(s):
+    p = 10007
+    q = 10009
+    rsa = RSA(65537, p*q, p, q)
+    s.assertEqual(rsa.d, 35910881)
+    s.assertEqual(rsa.encrypt(2), 82696754)
+    s.assertEqual(rsa.decrypt(82696754), 2)
+    c = rsa.encrypt(2)
+    s.assertEqual(rsa.decrypt(c * c), 4)
+    s.assertEqual(rsa.decrypt(2 * c), 4)

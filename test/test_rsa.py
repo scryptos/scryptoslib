@@ -128,3 +128,10 @@ class TestRSA(unittest.TestCase):
     c = rsa.encrypt(2)
     s.assertEqual(rsa.decrypt(c * c), 4)
     s.assertEqual(rsa.decrypt(2 * c), 4)
+    s.assertEqual(rsa.decrypt(c * 2), 4)
+    s.assertEqual(rsa.decrypt(-c * -2), 4)
+    s.assertEqual(rsa.decrypt(-c * -2), 4)
+    with s.assertRaises(AssertionError) as cm:
+      rsa.decrypt(c + 1)
+    with s.assertRaises(AssertionError) as cm:
+      rsa.decrypt(c - 1)

@@ -54,7 +54,7 @@ class Ciphertext(object):
     else:
       return s / s.parent.encrypt(rhs)
 
-  def __neg__(s, rhs):
+  def __neg__(s):
     assert s.is_homomorphic, 'The cryptosystem/cipher does not support homomorphic encryption'
     if '*' in s.homomorphic_type:
       return s * s.parent.encrypt(-1)

@@ -2,6 +2,7 @@ from scryptos.math.num import *
 from scryptos.util.hexutil import bytes_to_long, long_to_bytes
 from Crypto.Random import random
 from Crypto.PublicKey import RSA as pycrypto_RSA
+from Ciphertext import Ciphertext
 
 def rsa_d(rsa, d):
   """
@@ -67,22 +68,28 @@ class RSA(object):
     """
     return s.p is None
 
-  def encrypt(s, m):
+  def encrypt(s, m, raw=False):
     """
     RSA Encryption
     Args:
-      m : Plaintext Message (must be integer object)
-    Return: RSA Encrypted integer (m^e mod n)
+      m   : Plaintext Message (must be integer object)
+      raw : Is result wrapped by Ciphertext object?
+    Return: RSA Ciphertext or Encrypted integer (m^e mod n)
     """
-    return pow(m, s.e, s.n)
+    c = pow(m, s.e, s.n)
+    if raw:
+      return c
+    return Ciphertext(s, c)
 
   def decrypt(s, c):
     """
     RSA Decryption
     Args:
-      c : Ciphertext (must be integer object)
+      c : Ciphertext (must be integer object or Ciphertext object)
     Return: RSA Decrypted integer (c^d mod n)
     """
+    if isinstance(c, Ciphertext):
+      c = c.v
     return pow(c, s.d, s.n)
 
   def decrypt_PKCS15(s, c):
@@ -114,7 +121,7 @@ class RSA(object):
     Return: If valid signature, then True, else False.
 
     """
-    return s.encrypt(m) == sig
+    return s.encrypt(m, True) == sig
 
   def __str__(s):
     if s.is_public():
@@ -127,6 +134,15 @@ class RSA(object):
       return "RSA(%r, %r)" % (s.e, s.n)
     else:
       return "RSA(%r, %r, %d, %d, %d)" % (s.e, s.n, s.p, s.q, s.d)
+
+  def _homomorphic_type(s):
+    return ['*', '/']
+
+  def hom(s, op, lhs, rhs):
+    assert op in ['*', '/'], 'Invalid Operation'
+    if op == '/':
+      rhs = modinv(rhs, s.n)
+    return (lhs * rhs) % s.n
 
   def to_pem(s):
     if s.is_public():

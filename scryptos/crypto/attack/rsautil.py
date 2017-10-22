@@ -9,7 +9,12 @@ def common_modulus(rsa1, rsa2, c1, c2):
   Return: plaintext message
   """
   from scryptos.math import egcd, modinv
+  from scryptos.crypto import Ciphertext
   assert rsa1.n == rsa2.n
+  if isinstance(c1, Ciphertext):
+    c1 = c1.v
+  if isinstance(c2, Ciphertext):
+    c2 = c2.v
   a, b, g = egcd(rsa1.e, rsa2.e)
   if a < 0:
     c1 = modinv(c1, rsa1.n)
@@ -51,6 +56,8 @@ def hastads_broadcast(rsa_list, ct_list):
   Return: Plain Message
   """
   from scryptos.math import crt, nth_root
+  from scryptos.crypto import Ciphertext
+  ct_list = [c.v if isinstance(c, Ciphertext) else c for c in ct_list]
   assert all([x.e == rsa_list[0].e for x in rsa_list[1:]])
   assert len(ct_list) == len(rsa_list) == rsa_list[0].e
   e = rsa_list[0].e
@@ -95,6 +102,11 @@ def franklin_reiter(rsa, a, b, c1, c2):
   Reference: https://www.cs.unc.edu/~reiter/papers/1996/Eurocrypt.pdf
   """
   from scryptos.wrapper import parigp
+  from scryptos.crypto import Ciphertext
+  if isinstance(c1, Ciphertext):
+    c1 = c1.v
+  if isinstance(c2, Ciphertext):
+    c2 = c2.v
   expr = []
   expr += ["g1 = Mod(x^%d, %d) - %d" % (rsa.e, rsa.n, c1)]
   expr += ["g2 = Mod(%d * x + %d, %d)^%d - %d" % (a, b, rsa.n, rsa.e, c2)]

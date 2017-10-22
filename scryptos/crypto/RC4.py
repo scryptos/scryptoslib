@@ -1,4 +1,5 @@
 from scryptos.math.num import *
+from Ciphertext import Ciphertext
 
 class RC4(object):
   """
@@ -33,23 +34,29 @@ class RC4(object):
     return rand
 
 
-  def encrypt(s, m):
+  def encrypt(s, m, raw=False):
     """
     RC4 Encryption
     Args:
-      m : Plaintext Message (must be string object)
-    Return: RC4 Encrypted String (c_i = m_i XOR PRGA())
+      m   : Plaintext Message (must be string object)
+      raw : Is result wrapped by Ciphertext object?
+    Return: RC4 Ciphertext object or Encrypted String (c_i = m_i XOR PRGA())
     """
-    return "".join([chr(ord(x) ^ ord(y)) for x, y in zip(m, s.prga(len(m)))])
+    c = "".join([chr(ord(x) ^ ord(y)) for x, y in zip(m, s.prga(len(m)))])
+    if raw:
+      return c
+    return Ciphertext(s, c)
 
   def decrypt(s, c):
     """
     RC4 Decryption
     Args:
-      c : Ciphertext (must be string object)
+      c : Ciphertext (must be string object or Ciphertext object)
     Return: RC4 Decrypted String (same as `encrypt`)
     """
-    return s.encrypt(c)
+    if isinstance(c, Ciphertext):
+      c = c.v
+    return s.encrypt(c, True)
 
   def __str__(s):
     return "RC4 Instance: key = %r" % s.key

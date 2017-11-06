@@ -34,7 +34,7 @@ def merkle_hellman_low_density_CLOS(c, pub):
   """
   from scryptos.math import isqrt, Rational_LLL, vector_norm_i
   n = len(pub)
-  L = isqrt(n) + 1
+  L = 2*isqrt(n) + 1
   mat = []
   for x in xrange(n):
     mat += [[0] * x + [1] + [0] * (len(pub)-x-1) + [-L*pub[x]]]
@@ -58,7 +58,7 @@ def merkle_hellman_low_density_CLOS(c, pub):
     if x[-1] != 0:
       continue
     x = map(lambda x: int(x + 0.5), x[:-1])
-    if all([r == 0 or r == 1 or r == -1 for r in x]):
+    if all([r == 0 or r == 1 for r in x]):
       # found!
       ret = ""
       for y in x:

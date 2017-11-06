@@ -31,6 +31,10 @@ class TestMT19937(unittest.TestCase):
     for x in d[::-1]:
       s.assertEqual(mt.prev(), x)
 
+    mt = mt19937(seed)
+    rand = [mt.next() for _ in xrange(624)]
+    s.assertEqual(prngutil.crack_mt19937_using_index_difference(rand[227], rand[0], 227, 0), [seed])
+
 class TestLCG(unittest.TestCase):
   def setUp(s):
     pass

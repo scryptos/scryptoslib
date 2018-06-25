@@ -104,6 +104,7 @@ def modsqrt(a, m):
     m : A prime
   Return: Modular square root of a mod m
   """
+  import random
   def _find_power_divisor(base, x, modulo=None):
     k = 0
     m = base

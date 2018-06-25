@@ -169,3 +169,39 @@ def modulus_fault_crt(rsa, fault_sigs, r=50):
           p = g
           q = rsa.n / g
           return RSA(rsa.e, rsa.n, p, q)
+
+def lsb_oracle(rsa, ciphertext, oracle, state=None, quiet=False):
+  """
+  Attack to RSA: LSB Oracle Attack
+  Args: 
+    rsa        : RSA Object
+    ciphertext : A ciphertext to decrypt
+    oracle     : An oracle function
+    state      : A state tuple (k, lb, ub) Default: (1, 0, rsa.n)
+    quiet      : Is print debug message
+
+  Note:
+    `oracle` MUST return 0 or 1
+
+  Return: Decrypted ciphertext
+  Reference: https://crypto.stackexchange.com/questions/11053/rsa-least-significant-bit-oracle-attack
+  """
+  from scryptos.util import long_to_bytes
+  from fractions import Fraction
+  if state is not None:
+    k, lb, ub = state
+  else:
+    k, lb, ub = 1, 0, Fraction(rsa.n)
+
+  while True:
+    o = oracle((rsa.encrypt(pow(2, k, rsa.n)) * ciphertext).v)
+    if o == 1:
+      lb = (ub + lb) / 2
+    else:
+      ub = (ub + lb) / 2
+    if not quiet:
+      print repr((k, lb, ub))
+    if int(lb - ub) == 0:
+      break
+    k += 1
+  return int(ub)

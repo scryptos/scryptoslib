@@ -135,3 +135,19 @@ class TestRSA(unittest.TestCase):
       rsa.decrypt(c + 1)
     with s.assertRaises(AssertionError) as cm:
       rsa.decrypt(c - 1)
+
+  def test_lsb_oracle(s):
+    p = 10007
+    q = 10009
+    rsa = RSA(65537, p*q, p, q)
+
+    def oracle(c):
+      o = rsa.decrypt(c) % 2
+      return o
+
+    s.assertEqual(rsautil.lsb_oracle(rsa, rsa.encrypt(12345678), oracle), 12345678)
+    random.seed(12345)
+    for _ in xrange(20):
+      m = random.getrandbits(24)
+      print '[+] m:', m
+      s.assertEqual(rsautil.lsb_oracle(rsa, rsa.encrypt(m), oracle, quiet=True), m)

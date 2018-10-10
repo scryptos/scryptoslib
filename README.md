@@ -1,7 +1,6 @@
 scryptoslib
 ============
 
-
 A library of cryptography for playing CTFs
 
 ## Requirements
@@ -16,3 +15,9 @@ In this library, we wrote wrappers for following softwares:
 * Pari/GP
 * GAP
 * Singular
+
+## Contact
+Main mantainer is [@elliptic_shiho](https://twitter.com/elliptic_shiho). 
+
+## License
+This software released under the MIT LICENSE.

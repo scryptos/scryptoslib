@@ -1,7 +1,7 @@
 scryptoslib
 ============
 
-A library of cryptography for playing CTFs
+A cryptography library designed for CTFs.
 
 ## Requirements
 * python2
@@ -17,7 +17,7 @@ In this library, we wrote wrappers for following softwares:
 * Singular
 
 ## Contact
-Main mantainer is [@elliptic_shiho](https://twitter.com/elliptic_shiho). 
+The main mantainer is [@elliptic_shiho](https://twitter.com/elliptic_shiho).
 
 ## License
-This software released under the MIT LICENSE.
+Released under the MIT license.

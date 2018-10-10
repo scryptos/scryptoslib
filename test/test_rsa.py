@@ -45,15 +45,17 @@ class TestRSA(unittest.TestCase):
     s.assertEqual(rsautil.common_modulus(rsa1, rsa2, c1, c2), m)
 
   def test_common_private_exponent(s):
-    # Common Private Exponent Attack
-    # ek, nk from reference paper
-    e1, n1 = 587438623,2915050561
-    e2, n2 = 2382816879,3863354647
-    e3, n3 = 2401927159,3943138939
-    rsa1 = RSA(e1, n1)
-    rsa2 = RSA(e2, n2)
-    rsa3 = RSA(e3, n3)
-    s.assertEqual(rsautil.common_private_exponent([rsa1, rsa2, rsa3]), 655)
+    from scryptos.wrapper.common import check
+    if check("gp") or check("fplll") or check("gap"):
+      # Common Private Exponent Attack
+      # ek, nk from reference paper
+      e1, n1 = 587438623,2915050561
+      e2, n2 = 2382816879,3863354647
+      e3, n3 = 2401927159,3943138939
+      rsa1 = RSA(e1, n1)
+      rsa2 = RSA(e2, n2)
+      rsa3 = RSA(e3, n3)
+      s.assertEqual(rsautil.common_private_exponent([rsa1, rsa2, rsa3]), 655)
 
   def test_hastads_broadcast(s):
     # Hastad's Broadcast Attack
@@ -106,16 +108,18 @@ class TestRSA(unittest.TestCase):
     s.assertEqual(max(rsa2.p, rsa2.q), 10009)
 
   def test_modulus_fault_crt(s):
-    n = 139597781215932958403361341802832587199L
-    e = 65537
-    rsa = RSA(e, n)
-    fault_sigs = [1058535326842046404366164623977343348220096515298415971420L,
-                  498516681624023022157905434041816372788280365785800693627L,
-                  804996362997244807580066976356636401798047106638276618248L,
-                  486102002898098045301788623412192711614890707650168500297L,
-                  1109646572715192904427320549147799213950859213551899817975L]
-    rsa2 = rsautil.modulus_fault_crt(rsa, fault_sigs)
-    s.assertEqual(max(rsa2.p, rsa2.q), 14741565978953596877)
+    from scryptos.wrapper.common import check
+    if check("gp") or check("fplll") or check("gap"):
+      n = 139597781215932958403361341802832587199L
+      e = 65537
+      rsa = RSA(e, n)
+      fault_sigs = [1058535326842046404366164623977343348220096515298415971420L,
+                    498516681624023022157905434041816372788280365785800693627L,
+                    804996362997244807580066976356636401798047106638276618248L,
+                    486102002898098045301788623412192711614890707650168500297L,
+                    1109646572715192904427320549147799213950859213551899817975L]
+      rsa2 = rsautil.modulus_fault_crt(rsa, fault_sigs)
+      s.assertEqual(max(rsa2.p, rsa2.q), 14741565978953596877)
 
 
   def test_ciphertext_homomorphism(s):

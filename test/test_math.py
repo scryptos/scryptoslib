@@ -65,8 +65,10 @@ class TestLattice(unittest.TestCase):
   def test_lattice(s):
     from scryptos.wrapper.common import check
     X = [[1, -1, 3], [1, 0, 5], [1, 2, 6]]
+    # transposed matrix (Pari/GP uses column-based LLL)
+    X_parigp = [[1, 1, 1], [-1, 0, 2], [3, 5, 6]]
     if check("gp"):
-      s.assertEqual(lattice.LLL(X, impl="parigp"), [[0, 1, -1], [1, 0, 0], [0, 1, 2]])
+      s.assertEqual(lattice.LLL(X_parigp, impl="parigp"), [[0, 1, 0], [1, 0, 1], [-1, 0, 2]])
     if check("fplll"):
       s.assertEqual(lattice.LLL(X, impl="fplll"), [[1, -1, 0], [-1, 0, 1], [1, 1, 1]])
     if check("gap"):

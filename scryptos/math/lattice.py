@@ -16,12 +16,12 @@ def LLL(M, impl="auto"):
     elif check("gap"):
       impl = "gap"
     elif check("gp"):
-      impl = "gp"
+      impl = "parigp"
   if impl == "fplll":
     return fplll_lll(M)
   elif impl == "parigp":
     mat = "[" + "; ".join(map(lambda x: ", ".join(map(str, x)), M)) + "]"
-    return eval("[" + parigp(["M = %s" % mat, "Str(M * qflll(M))"]).replace("; ", "], [")[1:-1] + "]")
+    return eval("[" + parigp(["M = mattranspose(%s)" % mat, "Str(mattranspose(M * qflll(M)))"]).replace("; ", "], [")[1:-1] + "]")
   elif impl == "gap":
     mat = str(M).replace("L", "")
     return eval(gap(["vector := %s" % mat, "LLLReducedBasis(vector).basis"]).rstrip(";"))

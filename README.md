@@ -9,7 +9,7 @@ A cryptography library designed for CTFs.
 * pycrypto
 
 ## Optional Software
-In this library, we wrote wrappers for following softwares:
+In this library, we wrote wrappers for the following software:
 
 * fplll
 * Pari/GP

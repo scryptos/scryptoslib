@@ -1,6 +1,8 @@
 scryptoslib
 ============
 
+[![](https://api.travis-ci.org/scryptos/scryptoslib.svg?branch=master)](https://travis-ci.org/scryptos/scryptoslib)
+
 A cryptography library designed for CTFs.
 
 ## Requirements

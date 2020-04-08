@@ -22,7 +22,7 @@ def crack_mt19937(random_bits):
   """
   from scryptos.crypto import mt19937
   assert len(random_bits) == mt19937.N
-  mt = mt19937(state=map(mt19937.untempering, random_bits))
+  mt = mt19937(state=list(map(mt19937.untempering, random_bits)))
   return mt
 
 def crack_mt19937_using_index_difference(mA, mB, idxA, idxB):
@@ -58,14 +58,14 @@ def crack_mt19937_using_index_difference(mA, mB, idxA, idxB):
       for msb_mC in [0, 1]:
         mC = y ^ (msb_mA << 31) ^ (msb_mC << 31)
         x = mC
-        for i in xrange(idxA + 1, 0, -1):
+        for i in range(idxA + 1, 0, -1):
           x = ((x - i) * invMult) % mt19937.MOD
           x = x ^ (x >> 30)
         res += [x]
   ret = set()
   for seed in res:
     mt = mt19937(seed=seed)
-    rand = [mt.next() for _ in xrange(max(idxA, idxB) + 1)]
+    rand = [mt.next() for _ in range(max(idxA, idxB) + 1)]
     if mA in rand and mB in rand:
       ret.add(seed)
   return sorted(map(int, ret))

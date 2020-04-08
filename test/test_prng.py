@@ -19,20 +19,20 @@ class TestMT19937(unittest.TestCase):
     s.assertEqual(mt.next(), 2704993644)
 
     d = []
-    for _ in xrange(624):
+    for _ in range(624):
       d += [random.getrandbits(32)]
     mt = prngutil.crack_mt19937(d)
-    for x in xrange(624):
+    for x in range(624):
       s.assertEqual(mt.next(), d[x])
-    for x in xrange(624):
+    for x in range(624):
       s.assertEqual(mt.next(), random.getrandbits(32))
-    for x in xrange(624):
+    for x in range(624):
       mt.prev()
     for x in d[::-1]:
       s.assertEqual(mt.prev(), x)
 
     mt = mt19937(seed)
-    rand = [mt.next() for _ in xrange(624)]
+    rand = [mt.next() for _ in range(624)]
     s.assertEqual(prngutil.crack_mt19937_using_index_difference(rand[227], rand[0], 227, 0), [seed])
 
 class TestLCG(unittest.TestCase):

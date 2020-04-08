@@ -8,7 +8,7 @@ def merkle_hellman_low_density_LO(c, pub):
   """
   from scryptos.math import LLL
   mat = []
-  for x in xrange(len(pub)):
+  for x in range(len(pub)):
     mat += [[0] * x + [1] + [0] * (len(pub)-x-1) + [pub[x]]]
   mat += [[0] * (len(pub)) + [-c]]
   ml = LLL(mat)
@@ -36,7 +36,7 @@ def merkle_hellman_low_density_CLOS(c, pub):
   n = len(pub)
   L = 2*isqrt(n) + 1
   mat = []
-  for x in xrange(n):
+  for x in range(n):
     mat += [[0] * x + [1] + [0] * (len(pub)-x-1) + [-L*pub[x]]]
 
   # -1/2
@@ -46,10 +46,10 @@ def merkle_hellman_low_density_CLOS(c, pub):
   ml = Rational_LLL(mat)
 
   # Convert Rational to Real
-  for i in xrange(len(ml)):
-    for j in xrange(len(ml[i])):
+  for i in range(len(ml)):
+    for j in range(len(ml[i])):
       if isinstance(ml[i][j], tuple):
-        ml[i][j] = ml[i][j][0] * 1.0 / ml[i][j][1]
+        ml[i][j] = ml[i][j][0] / ml[i][j][1]
 
   # find shortest vector(a.k.a. plaintext)
   # In CLOS Method, vector (x1 - 1/2, x2 - 1/2, ..., xn - 1/2, 0) belongs to Lattice `mat`
@@ -57,7 +57,7 @@ def merkle_hellman_low_density_CLOS(c, pub):
   for x in ml:
     if x[-1] != 0:
       continue
-    x = map(lambda x: int(x + 0.5), x[:-1])
+    x = list(map(lambda x: int(x + 0.5), x[:-1]))
     if all([r == 0 or r == 1 for r in x]):
       # found!
       ret = ""
@@ -78,7 +78,7 @@ def merkle_hellman_modulo(c, pub, modulo):
   import random
   mat = []
   pub = pub + [c]
-  for x in xrange(len(pub)):
+  for x in range(len(pub)):
     mat += [[0] * x + [1] + [0] * (len(pub)-x-1) + [pub[x]]]
   mat += [[0] * (len(pub)) + [modulo]]
   ml = LLL(mat)

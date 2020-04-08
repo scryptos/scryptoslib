@@ -1,5 +1,5 @@
 from scryptos.math.num import *
-from Ciphertext import Ciphertext
+from .Ciphertext import Ciphertext
 
 class RC4(object):
   """
@@ -15,10 +15,10 @@ class RC4(object):
 
   def init_ksa(s):
     import math
-    s.table = range(256)
+    s.table = list(range(256))
     j = 0
     key = s.key * int(math.ceil(256./len(s.key)))
-    for i in xrange(256):
+    for i in range(256):
       j = (j + s.table[i] + ord(key[i])) % 256
       s.table[i], s.table[j] = s.table[j], s.table[i]
 
@@ -26,7 +26,7 @@ class RC4(object):
     s.init_ksa()
     i, j = 0, 0
     rand = ""
-    for _ in xrange(length):
+    for _ in range(length):
       i = (i + 1) % 256
       j = (j + s.table[i]) % 256
       s.table[i], s.table[j] = s.table[j], s.table[i]

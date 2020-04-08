@@ -35,10 +35,10 @@ def hexa(x, align=1):
   return r
 
 def long_to_bytes(x):
-  return hexa(x, 2)[2:].decode("hex")
+  return binascii.unhexlify(hexa(x, 2)[2:])
 
 def bytes_to_long(x):
-  return int(x.encode("hex"), 16)
+  return int(x.hex(), 16)
 
 def crc32(x):
   return (binascii.crc32(x) % (1<<32))

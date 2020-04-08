@@ -21,9 +21,8 @@ def convergents_from_contfrac(frac):
     frac: Continued Fraction List
   Yield: Convergents of a continued fraction
   """
-  for i in xrange(len(frac)):
+  for i in range(len(frac)):
       yield contfrac_to_rational(frac[0:i])
-  raise StopIteration()
 
 def contfrac_to_rational(frac):
   """

@@ -1,3 +1,4 @@
+from functools import reduce
 import operator as op
 import gmpy
 
@@ -50,7 +51,7 @@ def lcm(*args):
   Return: LCM of *args
   """
   g = gcd(*args)
-  return int(reduce(lambda x,y: (x*y) / g, args[1:], args[0]))
+  return int(reduce(lambda x,y: (x*y) // g, args[1:], args[0]))
 
 def legendre_symbol(a, p):
   """
@@ -122,15 +123,15 @@ def modsqrt(a, m):
   if is_prime(m):
     # Tonelli-Shanks Algorithm
     if m % 4 == 3:
-      r = pow(a, (m + 1) / 4, m)
+      r = pow(a, (m + 1) // 4, m)
       return [r, m - r]
     s = _find_power_divisor(2, m - 1)
-    q = (m - 1) / 2**s
+    q = (m - 1) // 2**s
     z = 0
     while legendre_symbol(z, m) != -1:
       z = random.randint(1, m)
     c = pow(z, q, m)
-    r = pow(a, (q + 1) / 2, m)
+    r = pow(a, (q + 1) // 2, m)
     t = pow(a, q, m)
     l = s
     while True:
@@ -145,23 +146,23 @@ def modsqrt(a, m):
   if m == 2:
     return a
   if m % 4 == 3:
-    r = pow(a, (m + 1) / 4, m)
+    r = pow(a, (m + 1) // 4, m)
     return [r, m - r]
   if m % 8 == 5:
-    v = pow(2 * a, (m - 5) / 8, m)
+    v = pow(2 * a, (m - 5) // 8, m)
     i = pow(2 * a * v, 2, m)
     r = a * v * (i - 1) % m
     return [r, m - r]
   if m % 8 == 1:
     e = _find_power_divisor(2, m - 1)
-    q = (m - 1) / 2**e
+    q = (m - 1) // 2**e
     z = 1
     while pow(z, 2**(e - 1), m) == 1:
       x = random.randint(1, m)
       z = pow(x, q, m)
     y = z
     r = e
-    x = pow(a, (q - 1) / 2, m)
+    x = pow(a, (q - 1) // 2, m)
     v = (a * x) % m
     w = (v * x) % m
     while True:
@@ -189,9 +190,9 @@ def crt(ak, nk):
   l = lcm(*nk)
   s = 0
   for n, a in zip(nk, ak):
-    m = N / n
+    m = N // n
     x, y, g = egcd(m, n)
-    s += (m / g) * x * a
+    s += (m // g) * x * a
     s %= l
   return s
 

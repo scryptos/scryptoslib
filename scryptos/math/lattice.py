@@ -1,5 +1,6 @@
 from scryptos.wrapper import fplll_lll, parigp, gap
 from scryptos.wrapper.common import check
+from functools import reduce
 
 def LLL(M, impl="auto"):
   """
@@ -40,9 +41,9 @@ def Rational_LLL(M, impl="auto"):
   """
   from scryptos.math import gcd
   g = None
-  for i in xrange(len(M)):
-    for j in xrange(len(M[i])):
-      if isinstance(M[i][j], (int, long)):
+  for i in range(len(M)):
+    for j in range(len(M[i])):
+      if isinstance(M[i][j], int):
         continue
       if M[i][j][1] == 1:
         continue
@@ -50,15 +51,15 @@ def Rational_LLL(M, impl="auto"):
         g = M[i][j][1]
       else:
         g = gcd(g, M[i][j][1])
-  for i in xrange(len(M)):
-    for j in xrange(len(M[i])):
-      if isinstance(M[i][j], (int, long)):
+  for i in range(len(M)):
+    for j in range(len(M[i])):
+      if isinstance(M[i][j], int):
         M[i][j] = M[i][j] * g
       else:
         M[i][j] = M[i][j][0] * (g/M[i][j][1])
   B = LLL(M)
-  for i in xrange(len(B)):
-    for j in xrange(len(B[i])):
+  for i in range(len(B)):
+    for j in range(len(B[i])):
       p, q = (B[i][j], g)
       p, q = (p / gcd(p, q), q / gcd(p, q))
       if q == 1:
@@ -76,12 +77,12 @@ def Orthogonal_Lattice(vs):
   from scryptos.math import vector_norm_i, vector_dot_product, LLL
   n = len(vs[0])
   d = len(vs)
-  c = 2**((n-1)/2 + (n-d)*(n-d-1)/4)
+  c = 2**((n-1)//2 + (n-d)*(n-d-1)//4)
   c = c * reduce(lambda x,y:x*vector_norm_i(y), vs, 1)
   M = []
-  for i in xrange(n):
+  for i in range(n):
     a = []
-    for j in xrange(d):
+    for j in range(d):
       a += [c * vs[j][i]]
     a += [0] * i + [1] + [0] * (n-i-1)
     M += [a]

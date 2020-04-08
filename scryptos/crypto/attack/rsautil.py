@@ -35,16 +35,16 @@ def common_private_exponent(rsa_list):
   from scryptos.math import LLL
   import math
   import gmpy
-  eset = map(lambda x: x.e, rsa_list)
-  nset = map(lambda x: x.n, rsa_list)
+  eset = list(map(lambda x: x.e, rsa_list))
+  nset = list(map(lambda x: x.n, rsa_list))
   r = len(eset)
   M = int(gmpy.floor(gmpy.sqrt(nset[-1])))
   B = []
   B += [[M] + eset]
-  for x in xrange(r):
+  for x in range(r):
     B += [[0]*(x+1) + [-nset[x]] + [0] * (r-x-1)]
   S = LLL(B)
-  d = abs(S[0][0])/M
+  d = abs(S[0][0]) // M
   return d
 
 def hastads_broadcast(rsa_list, ct_list):
@@ -61,7 +61,7 @@ def hastads_broadcast(rsa_list, ct_list):
   assert all([x.e == rsa_list[0].e for x in rsa_list[1:]])
   assert len(ct_list) == len(rsa_list) == rsa_list[0].e
   e = rsa_list[0].e
-  x = crt(ct_list, map(lambda x: x.n, rsa_list))
+  x = crt(ct_list, list(map(lambda x: x.n, rsa_list)))
   return nth_root(x, e)
 
 def wiener(rsa):
@@ -79,13 +79,13 @@ def wiener(rsa):
   conv = convergents_from_contfrac(frac)
   for (k, d) in conv:
     if k != 0 and (e*d - 1) % k == 0:
-      phi = (e * d - 1) / k
+      phi = (e * d - 1) // k
       s = n - phi + 1
       disc = s**2 - 4*n
       if disc >= 0:
         t = is_perfect_square(disc)
         if t != -1 and (s + t) % 2 == 0:
-          # print "[+] d = %d" % d
+          print("[+] d = %d" % d)
           return RSA(e, n, d=d)
 
 def franklin_reiter(rsa, a, b, c1, c2):
@@ -143,7 +143,7 @@ def modulus_fault_crt(rsa, fault_sigs, r=50):
   """
   from scryptos.math import gcd, vector_add, vector_sub, vector_scalarmult, vector_norm_i, Orthogonal_Lattice
   from scryptos.crypto import RSA
-  ITERATION_RANGE = xrange(-r, r+1)
+  ITERATION_RANGE = range(-r, r+1)
   assert len(fault_sigs) >= 5
 
   l = len(fault_sigs)
@@ -167,7 +167,7 @@ def modulus_fault_crt(rsa, fault_sigs, r=50):
         if 1 < g < rsa.n:
           #print "FACTOR", g
           p = g
-          q = rsa.n / g
+          q = rsa.n // g
           return RSA(rsa.e, rsa.n, p, q)
 
 def lsb_oracle(rsa, ciphertext, oracle, state=None, quiet=False):
@@ -200,7 +200,7 @@ def lsb_oracle(rsa, ciphertext, oracle, state=None, quiet=False):
     else:
       ub = (ub + lb) / 2
     if not quiet:
-      print repr((k, lb, ub))
+      print(repr((k, lb, ub)))
     if int(lb - ub) == 0:
       break
     k += 1

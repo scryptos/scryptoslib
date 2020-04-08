@@ -1,4 +1,4 @@
-from scryptos.util.stringutil import xorstr
+from scryptos.util.stringutil import xorbytes
 import operator as op
 import hashlib
 import hmac
@@ -24,15 +24,15 @@ def p_hash(algo, secret, seed, size):
   References :
     * [RFC2246] Section 5. HMAC and the pseudorandom function
   """
-  out = ""
+  out = bytearray([])
   algo = hashlib.__getattribute__(algo.lower())
   a = seed
   while len(out) < size:
     a = hmac.new(secret, a, algo).digest()
-    out += hmac.new(secret, a + seed, algo).digest()
+    out += hmac.new(secret, bytearray(a) + bytearray(seed), algo).digest()
   return out[:size]
 
-def PRF(algo, secret, label, seed, size):
+def PRF(algo, secret, label : bytes, seed, size):
   """
     Pseudorandom Function for TLS 1.2
     Args:
@@ -44,9 +44,9 @@ def PRF(algo, secret, label, seed, size):
     References :
       * [RFC5246] Section 5.  HMAC and the Pseudorandom Function
   """
-  return p_hash(algo, secret, label+seed, size)
+  return p_hash(algo, secret, bytearray(label) + bytearray(seed), size)
 
-def PRF_v1_v1_1(algo, secret, label, seed, size):
+def PRF_v1_v1_1(algo, secret, label : bytes, seed, size):
   """
     Pseudorandom Function for TLS 1.1 / 1.0
     Args:
@@ -59,9 +59,10 @@ def PRF_v1_v1_1(algo, secret, label, seed, size):
       * [RFC2246] Section 5. HMAC and the Pseudorandom function
       * [RFC4346] Section 5. HMAC and the Pseudorandom function
   """
-  s1 = secret[:len(secret)/2]
-  s2 = secret[len(secret)/2:]
-  return xorstr(p_hash("md5", s1, label+seed, size), p_hash("sha1", s2, label+seed, size))
+  s1 = secret[:len(secret)//2]
+  s2 = secret[len(secret)//2:]
+  l = bytearray(label) + bytearray(seed)
+  return xorbytes(p_hash("md5", s1, l, size), p_hash("sha1", s2, l, size))
 
 def calc_master_secret_v1_v1_1(algo, pre_master_secret, client_random, server_random):
   """
@@ -75,7 +76,7 @@ def calc_master_secret_v1_v1_1(algo, pre_master_secret, client_random, server_ra
       * [RFC2246] Section 8.1. Computing the master secret
       * [RFC4346] Section 8.1. Computing the Master Secret
   """
-  return PRF_v1_v1_1(algo, pre_master_secret, "master secret", client_random + server_random, 48)
+  return PRF_v1_v1_1(algo, pre_master_secret, b"master secret", client_random + server_random, 48)
 
 def calc_master_secret(algo, pre_master_secret, client_random, server_random):
   """
@@ -88,4 +89,4 @@ def calc_master_secret(algo, pre_master_secret, client_random, server_random):
     References:
       * [RFC5246] Section 8.1. Computing the Master Secret
   """
-  return PRF(algo, pre_master_secret, "master secret", client_random + server_random, 48)
+  return PRF(algo, pre_master_secret, b"master secret", client_random + server_random, 48)

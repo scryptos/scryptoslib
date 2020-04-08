@@ -1,4 +1,5 @@
 import unittest
+import binascii
 from scryptos import hexutil, stringutil
 
 class TestHexUtil(unittest.TestCase):
@@ -6,35 +7,35 @@ class TestHexUtil(unittest.TestCase):
     pass
 
   def test_pack(s):
-    s.assertEqual(hexutil.p64(0xdeadbeefcafebabe), '\xbe\xba\xfe\xca\xef\xbe\xad\xde')
-    s.assertEqual(hexutil.p32(0xdeadbeef), '\xef\xbe\xad\xde')
-    s.assertEqual(hexutil.p16(0x1234), '\x34\x12')
-    s.assertEqual(hexutil.p8(0xef), '\xef')
+    s.assertEqual(hexutil.p64(0xdeadbeefcafebabe), b'\xbe\xba\xfe\xca\xef\xbe\xad\xde')
+    s.assertEqual(hexutil.p32(0xdeadbeef), b'\xef\xbe\xad\xde')
+    s.assertEqual(hexutil.p16(0x1234), b'\x34\x12')
+    s.assertEqual(hexutil.p8(0xef), b'\xef')
 
   def test_unpack(s):
-    s.assertEqual(hexutil.u64('\xbe\xba\xfe\xca\xef\xbe\xad\xde'), 0xdeadbeefcafebabe)
-    s.assertEqual(hexutil.u32('\xef\xbe\xad\xde'), 0xdeadbeef)
-    s.assertEqual(hexutil.u16('\x34\x12'), 0x1234)
-    s.assertEqual(hexutil.u8('\xef'), 0xef)
+    s.assertEqual(hexutil.u64(b'\xbe\xba\xfe\xca\xef\xbe\xad\xde'), 0xdeadbeefcafebabe)
+    s.assertEqual(hexutil.u32(b'\xef\xbe\xad\xde'), 0xdeadbeef)
+    s.assertEqual(hexutil.u16(b'\x34\x12'), 0x1234)
+    s.assertEqual(hexutil.u8(b'\xef'), 0xef)
 
   def test_bpack(s):
-    s.assertEqual(hexutil.pb64(0xdeadbeefcafebabe), '\xbe\xba\xfe\xca\xef\xbe\xad\xde'[::-1])
-    s.assertEqual(hexutil.pb32(0xdeadbeef), '\xef\xbe\xad\xde'[::-1])
-    s.assertEqual(hexutil.pb16(0x1234), '\x34\x12'[::-1])
-    s.assertEqual(hexutil.pb8(0xef), '\xef')
+    s.assertEqual(hexutil.pb64(0xdeadbeefcafebabe), b'\xbe\xba\xfe\xca\xef\xbe\xad\xde'[::-1])
+    s.assertEqual(hexutil.pb32(0xdeadbeef), b'\xef\xbe\xad\xde'[::-1])
+    s.assertEqual(hexutil.pb16(0x1234), b'\x34\x12'[::-1])
+    s.assertEqual(hexutil.pb8(0xef), b'\xef')
 
   def test_bunpack(s):
-    s.assertEqual(hexutil.ub64('\xbe\xba\xfe\xca\xef\xbe\xad\xde'[::-1]), 0xdeadbeefcafebabe)
-    s.assertEqual(hexutil.ub32('\xef\xbe\xad\xde'[::-1]), 0xdeadbeef)
-    s.assertEqual(hexutil.ub16('\x34\x12'[::-1]), 0x1234)
-    s.assertEqual(hexutil.ub8('\xef'), 0xef)
+    s.assertEqual(hexutil.ub64(b'\xbe\xba\xfe\xca\xef\xbe\xad\xde'[::-1]), 0xdeadbeefcafebabe)
+    s.assertEqual(hexutil.ub32(b'\xef\xbe\xad\xde'[::-1]), 0xdeadbeef)
+    s.assertEqual(hexutil.ub16(b'\x34\x12'[::-1]), 0x1234)
+    s.assertEqual(hexutil.ub8(b'\xef'), 0xef)
 
   def test_misc(s):
     s.assertEqual(hexutil.hexa(0xabcd), '0xabcd')
     s.assertEqual(hexutil.hexa(0xabcd, 8), '0x0000abcd')
     s.assertEqual(hexutil.hexa(-0xabcd, 6), '-0x00abcd')
-    s.assertEqual(hexutil.long_to_bytes(0xabcd), '\xab\xcd')
-    s.assertEqual(hexutil.crc32('abcdefg'), 0x312a6aa6)
+    s.assertEqual(hexutil.long_to_bytes(0xabcd), b'\xab\xcd')
+    s.assertEqual(hexutil.crc32(b'abcdefg'), 0x312a6aa6)
 
 class TestStringUtil(unittest.TestCase):
   def setUp(s):

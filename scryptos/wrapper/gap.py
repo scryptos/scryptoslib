@@ -7,7 +7,7 @@ def gap(cmd, isAll=False, debug=False):
     cmd = [cmd]
   s = ";\n".join(cmd) + ";"
   if debug:
-    print "[+] Throughout to GAP Commands: %r" % cmd
+    print("[+] Throughout to GAP Commands: {!r}".format(cmd))
   p = Popen(["gap", "-q"], stdin=PIPE, stdout=PIPE)
   d, _ = p.communicate(s)
   if isAll:

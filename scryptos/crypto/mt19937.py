@@ -23,11 +23,11 @@ class mt19937(object):
     if seed is None and state is None:
       raise RuntimeError("Missing Argument")
     if seed is not None:
-      s.table = [0 for _ in xrange(s.N)]
+      s.table = [0 for _ in range(s.N)]
       s.table[0] = seed
-      for i in xrange(1, s.N):
+      for i in range(1, s.N):
         s.table[i] = ((((s.table[i-1] >> 30) ^ s.table[i-1]) * 0x6c078965) % s.MOD + i) % s.MOD
-      for i in xrange(s.N):
+      for i in range(s.N):
         s.next()
       s.index = 0
     elif state is not None:

@@ -6,7 +6,7 @@ scryptoslib
 A cryptography library designed for CTFs.
 
 ## Requirements
-* python2
+* Python 3
 * gmpy
 * pycrypto
 

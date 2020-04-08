@@ -1,10 +1,11 @@
-from test_util import *
-from test_math import *
-from test_rsa  import *
-from test_knapsack import *
-from test_prng import *
-from test_rc4 import *
-from test_tls import *
+from __future__ import division, absolute_import, generators, print_function
+from .test_util import *
+from .test_math import *
+from .test_rsa  import *
+from .test_knapsack import *
+from .test_prng import *
+from .test_rc4 import *
+from .test_tls import *
 
 def suite():
   suite = unittest.TestSuite()

@@ -8,7 +8,7 @@ def singular(cmd, isAll=False, debug=False):
     cmd = [cmd]
   s = ";\n".join(cmd) + ";"
   if debug:
-    print "[+] Throughout to Singular Commands: %r" % cmd
+    print("[+] Throughout to Singular Commands: {!r}".format(cmd))
   tmpname = os.tempnam()
   open(tmpname, "w").write(s)
   p = Popen(["Singular", "-bq", tmpname], stdin=PIPE, stdout=PIPE)

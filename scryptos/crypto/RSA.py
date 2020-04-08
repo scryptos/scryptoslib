@@ -2,7 +2,7 @@ from scryptos.math.num import *
 from scryptos.util.hexutil import bytes_to_long, long_to_bytes
 from Crypto.Random import random
 from Crypto.PublicKey import RSA as pycrypto_RSA
-from Ciphertext import Ciphertext
+from .Ciphertext import Ciphertext
 
 def rsa_d(rsa, d):
   """
@@ -21,12 +21,12 @@ def rsa_d(rsa, d):
     g = random.randint(2, rsa.n - 1)
     t = k
     while t % 2 == 0:
-      t = t / 2
+      t = t // 2
       x = pow(g, t, rsa.n)
       y = gcd(x - 1, rsa.n)
       if x > 1 and y > 1:
         p = y
-        q = rsa.n / y
+        q = rsa.n // y
         return (max(p, q), min(p, q))
 
 class RSA(object):
@@ -52,7 +52,7 @@ class RSA(object):
     s.d = d
     if s.p is not None or s.q is not None or s.d is not None:
       if s.p is not None and s.q is None:
-        s.q = s.n / s.p
+        s.q = s.n // s.p
         assert s.q * s.p == s.n
       if s.d is not None and s.p is None and s.q is None:
         s.p, s.q = rsa_d(s, s.d)
@@ -100,8 +100,8 @@ class RSA(object):
       Return: RSA Decrypted & PKCS/1.5 unpadded integer (c^d mod n)
     """
     m = long_to_bytes(s.decrypt(c))
-    assert m[0] == "\x02"
-    return bytes_to_long(m.split("\x00", 1)[1])
+    assert m[0] == 2
+    return bytes_to_long(m.split(b"\x00", 1)[1])
 
   def sign(s, m):
     """
@@ -146,9 +146,9 @@ class RSA(object):
 
   def to_pem(s):
     if s.is_public():
-      rsa = pycrypto_RSA.construct((long(s.n), long(s.e)))
+      rsa = pycrypto_RSA.construct((s.n, s.e))
     else:
-      rsa = pycrypto_RSA.construct((long(s.n), long(s.e), long(s.d), long(s.p), long(s.q)))
+      rsa = pycrypto_RSA.construct((s.n, s.e, s.d, s.p, s.q))
     return rsa.exportKey("PEM")
 
   @staticmethod

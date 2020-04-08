@@ -11,7 +11,8 @@ def fplll(m, mode, external_options=[]):
     s += "[" + " ".join(["%d"%y for y in x]) + "]"
   s += "]"
   p = Popen(["fplll", "-r", str(len(m)), "-c", str(len(m[0])), "-a", mode] + external_options, stdin=PIPE, stdout=PIPE)
-  d, _ = p.communicate(s)
+  d, _ = p.communicate(s.encode())
+  d = d.decode()
   return eval(d.replace("\n", ",").replace(" ", ",")[:-1])
 
 def fplll_lll(m):

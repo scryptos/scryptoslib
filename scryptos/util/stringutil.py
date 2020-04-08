@@ -1,4 +1,4 @@
-from hexutil import hexa
+from .hexutil import long_to_bytes
 import itertools
 
 class StreamReader:
@@ -28,9 +28,21 @@ class StreamReader:
 
 def xorstr(s, key):
   out = ""
-  if isinstance(key, (int, long)):
-    key = hexa(key, 2)[2:].decode("hex")
-  return mapstr(s, key, lambda x, y:chr(ord(x)^ord(y)))
+  if isinstance(key, int):
+    key = long_to_bytes(key).decode()
+  return mapstr(s, key, lambda x, y:chr(ord(x) ^ ord(y)))
+
+def xorbytes(s, key):
+  out = bytearray([])
+  if isinstance(key, int):
+    key = long_to_bytes(key)
+  return mapbytes(s, key, lambda x, y: x ^ y)
+
+def mapbytes(s, t, func):
+  out = bytearray([])
+  for x,y in zip(s, itertools.cycle(t)):
+    out.append(func(x, y))
+  return out
 
 def mapstr(s, t, func):
   out = ""

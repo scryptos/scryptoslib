@@ -21,9 +21,10 @@ def parigp(cmd, isAll=False, debug=False):
     cmd = ["allocatemem(%s)" % memsize] + cmd
   s = "\n".join(cmd)
   if debug:
-    print "[+] Throughout to Pari/GP Commands: %r" % cmd
+    print("[+] Throughout to Pari/GP Commands: {!r}".format(cmd))
   p = Popen(["gp", "-q"], stdin=PIPE, stdout=PIPE)
-  d, _ = p.communicate(s)
+  d, _ = p.communicate(s.encode())
+  d = d.decode()
   if isAll:
     return d.split("\n")[:-1]
   else:

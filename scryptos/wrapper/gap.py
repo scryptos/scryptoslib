@@ -9,7 +9,8 @@ def gap(cmd, isAll=False, debug=False):
   if debug:
     print("[+] Throughout to GAP Commands: {!r}".format(cmd))
   p = Popen(["gap", "-q"], stdin=PIPE, stdout=PIPE)
-  d, _ = p.communicate(s)
+  d, _ = p.communicate(s.encode())
+  d = d.decode()
   if isAll:
     return d.split("\n")[:-1]
   else:

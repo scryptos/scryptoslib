@@ -8,7 +8,7 @@ A cryptography library designed for CTFs.
 ## Requirements
 * Python 3
 * gmpy
-* pycrypto
+* pycryptodome
 
 ## Optional Software
 In this library, we wrote wrappers for the following software:

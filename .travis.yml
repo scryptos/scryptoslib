@@ -5,12 +5,11 @@ addons:
     apt:
         packages:
             - fplll-tools
-            # - pari-gp  # too old at trusty
+            - pari-gp  # too old at trusty
             - gap
-            - singular  # not in the repo at trusty
+            - singular
+            - singular-bin
 install:
-    - wget http://mirrors.kernel.org/ubuntu/pool/universe/p/pari/pari-gp_2.7.5-1_amd64.deb
-    - sudo dpkg -i pari-gp_2.7.5-1_amd64.deb
     - pip install .
 script:
     - python setup.py test

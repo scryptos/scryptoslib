@@ -2,6 +2,7 @@ from scryptos.math.num import *
 from scryptos.util.hexutil import bytes_to_long, long_to_bytes
 from Crypto.Random import random
 from Crypto.PublicKey import RSA as pycrypto_RSA
+from Crypto.Cipher import PKCS1_OAEP
 from .Ciphertext import Ciphertext
 
 def rsa_d(rsa, d):
@@ -103,6 +104,15 @@ class RSA(object):
     assert m[0] == 2
     return bytes_to_long(m.split(b"\x00", 1)[1])
 
+  def decrypt_OAEP(s, c : bytes):
+    """
+    RSA Decryption with PKCS1-OAEP
+    Args:
+      c: Ciphertext (must be bytes object)
+    """
+    rsa = s.to_pycrypto()
+    return PKCS1_OAEP.new(rsa).decrypt(c)
+
   def sign(s, m):
     """
     Sign to m using RSA
@@ -144,12 +154,15 @@ class RSA(object):
       rhs = modinv(rhs, s.n)
     return (lhs * rhs) % s.n
 
-  def to_pem(s):
+  def to_pycrypto(s):
     if s.is_public():
       rsa = pycrypto_RSA.construct((s.n, s.e))
     else:
       rsa = pycrypto_RSA.construct((s.n, s.e, s.d, s.p, s.q))
-    return rsa.exportKey("PEM")
+    return rsa
+
+  def to_pem(s):
+    return s.to_pycrypto().exportKey("PEM")
 
   @staticmethod
   def import_pem(pem_string):

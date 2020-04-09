@@ -21,6 +21,8 @@ ub32 = lambda x: struct.unpack(">I", x)[0]
 ub16 = lambda x: struct.unpack(">H", x)[0]
 ub8  = lambda x: struct.unpack(">B", x)[0]
 
+unhex = binascii.unhexlify
+
 def hexa(x, align=1):
   minus = False
   r = format(x, "x")

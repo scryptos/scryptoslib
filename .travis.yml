@@ -3,10 +3,6 @@ python:
     - 3.8
 addons:
     apt:
-        sources:
-            # https://www.singular.uni-kl.de/index.php/singular-download/110.html
-            - sourceline: 'deb ftp://jim.mathematik.uni-kl.de/repo/ubuntu14 trusty main'
-              key_url: 'ftp://jim.mathematik.uni-kl.de/repo/extra/gpg'
         packages:
             - fplll-tools
             # - pari-gp  # too old at trusty

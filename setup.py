@@ -7,5 +7,5 @@ setup(name='scryptoslib',
     url='https://github.com/scryptos/scryptos/',
     packages=find_packages(),
     test_suite='test.suite',
-    install_requires=['gmpy', 'pycrypto']
+    install_requires=['gmpy', 'pycryptodome']
 )

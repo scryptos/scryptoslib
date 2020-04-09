@@ -8,7 +8,6 @@ addons:
             - pari-gp  # too old at trusty
             - gap
             - singular
-            - singular-bin
 install:
     - pip install .
 script:
